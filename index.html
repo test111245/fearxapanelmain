@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FearX Panel</title>
+  <style>
+    :root{
+      --bg:#0f0f14; --panel:#11162a; --line:#1f2335; --muted:#94a3b8; --accent1:#2b3560; --accent2:#343a7e;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e5e7eb;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    .grid{display:grid}
+    .app{grid-template-columns:260px 1fr; min-height:100vh;}
+    aside{background:#0f1220;border-right:1px solid var(--line);padding:16px}
+    .logo{font-weight:700;font-size:20px}
+    .muted{color:var(--muted)}
+    .nav a{display:flex;gap:10px;margin:6px 0;padding:10px 12px;border-radius:10px;color:#cbd5e1;text-decoration:none}
+    .nav a:hover{background:#1b2032;color:#fff}
+    .nav a.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#fff}
+    header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);background:#0f1220}
+    main{padding:16px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+    .kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+    .grid2{grid-template-columns:1fr 1fr;gap:16px}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}
+    .input{background:#0f1220;border:1px solid var(--line);color:#e5e7eb;border-radius:8px;padding:8px 10px}
+    .btn{background:#1f2335;border:1px solid #2a3151;color:#cbd5e1;border-radius:10px;padding:8px 12px;cursor:pointer}
+    .btn:hover{background:#2a3151;color:#fff}
+    .hidden{display:none}
+    .status{color:#4ade80}
+    @media (max-width: 980px){ .app{grid-template-columns:1fr} aside{position:sticky;top:0;z-index:2} .kpis{grid-template-columns:1fr 1fr} .grid2{grid-template-columns:1fr} }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="grid app">
+    <aside>
+      <div class="logo">FearX Panel</div>
+      <div class="muted" style="font-size:13px">Live monitoring</div>
+      <div style="border-top:1px solid var(--line);margin:12px 0 8px"></div>
+      <nav class="nav">
+        <a href="#/dashboard" data-view="dashboard" class="active">📊 Dashboard</a>
+        <a href="#/logs" data-view="logs">📜 Live Logs</a>
+        <a href="#/players" data-view="players">👥 Players</a>
+        <a href="#/bans" data-view="bans">🚫 Bans</a>
+      </nav>
+    </aside>
+    <div>
+      <header>
+        <div>
+          <div style="font-weight:600" id="pageTitle">Dashboard</div>
+          <div class="muted" style="font-size:12px">Framework: <span id="framework">Any</span></div>
+        </div>
+        <div class="muted" style="font-size:13px">Server: <span id="serverName">—</span></div>
+      </header>
+      <main>
+        <!-- Dashboard -->
+        <section id="dashboard" class="view">
+          <div class="grid kpis">
+            <div class="card">
+              <div class="muted" style="font-size:12px">Online Players</div>
+              <div id="kpiOnline" style="font-size:28px;font-weight:700;margin-top:6px">0</div>
+              <div class="muted" style="font-size:12px">of <span id="kpiMax">—</span></div>
+            </div>
+            <div class="card">
+              <div class="muted" style="font-size:12px">Events (last 10)</div>
+              <div id="kpiEvents" style="font-size:28px;font-weight:700;margin-top:6px">0</div>
+              <div class="muted" style="font-size:12px">Live</div>
+            </div>
+            <div class="card">
+              <div class="muted" style="font-size:12px">Status</div>
+              <div style="font-size:28px;font-weight:700;margin-top:6px" class="status">Online</div>
+              <div class="muted" style="font-size:12px">Realtime connected</div>
+            </div>
+            <div class="card">
+              <div class="muted" style="font-size:12px">Panel</div>
+              <div style="font-size:28px;font-weight:700;margin-top:6px">Single-file</div>
+              <div class="muted" style="font-size:12px">Vercel static</div>
+            </div>
+          </div>
+          <div class="grid grid2" style="margin-top:16px">
+            <div class="card">
+              <div style="font-weight:600">Recent Activity</div>
+              <div id="recent" class="muted" style="margin-top:8px">Waiting for events…</div>
+            </div>
+            <div class="card">
+              <div style="font-weight:600">Server Info</div>
+              <div style="margin-top:8px">
+                <div class="muted">Name: <span id="infoName">—</span></div>
+                <div class="muted">Max: <span id="infoMax">—</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Logs -->
+        <section id="logs" class="view hidden">
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input class="input" id="logsQuery" placeholder="Filter by code or detail…" style="width:260px">
+            <button class="btn" onclick="document.getElementById('logsQuery').value='';renderLogs()">Clear</button>
+          </div>
+          <div class="card" style="overflow:auto">
+            <table class="table" id="logsTable">
+              <thead class="muted">
+                <tr><th>Time</th><th>Code</th><th>Severity</th><th>Server</th><th>Detail</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Players -->
+        <section id="players" class="view hidden">
+          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+            <input class="input" id="playersQuery" placeholder="Search by name or id…" style="width:260px">
+            <div class="muted" id="playersCount" style="font-size:13px"></div>
+          </div>
+          <div class="grid grid2">
+            <div class="card" style="max-height:70vh;overflow:auto">
+              <table class="table" id="playersTable">
+                <thead class="muted">
+                  <tr><th>Name</th><th>ID</th><th>Trust</th><th>Last Seen</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div style="font-weight:600">Details</div>
+              <div class="muted" style="margin-top:8px">Select a player row (display only in this starter).</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bans -->
+        <section id="bans" class="view hidden">
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input class="input" id="bansQuery" placeholder="Search reason…" style="width:260px">
+            <button class="btn" onclick="document.getElementById('bansQuery').value='';renderBans()">Clear</button>
+          </div>
+          <div class="card" style="overflow:auto">
+            <table class="table" id="bansTable">
+              <thead class="muted">
+                <tr><th>Reason</th><th>Player ID</th><th>Created</th><th>By</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // 1) Set your Supabase project details here (public anon key is safe for read-only)
+    const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_ANON_PUBLIC_KEY";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { realtime: { params: { eventsPerSecond: 5 }}});
+
+    // UI routing
+    const links = document.querySelectorAll('a[data-view]');
+    links.forEach(a => a.addEventListener('click', (e) => {
+      links.forEach(x=>x.classList.remove('active'));
+      a.classList.add('active');
+      const view = a.dataset.view;
+      document.getElementById('pageTitle').textContent = a.textContent.replace(/^[^ ]+\s/,'').trim();
+      document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+      document.getElementById(view).classList.remove('hidden');
+    }));
+
+    // State
+    let events = [];
+    let players = [];
+    let bans = [];
+
+    // Helpers
+    const fmtTime = (d) => new Date(d).toLocaleTimeString();
+    const timeAgo = (d) => {
+      const diff = (Date.now()-new Date(d).getTime())/1000;
+      if (diff<60) return Math.floor(diff)+"s ago";
+      if (diff<3600) return Math.floor(diff/60)+"m ago";
+      if (diff<86400) return Math.floor(diff/3600)+"h ago";
+      return Math.floor(diff/86400)+"d ago";
+    };
+
+    // Initial loads
+    async function loadAll() {
+      // Recent events & subscription
+      let { data: ev } = await supabase.from('events').select('*').order('created_at', { ascending: false }).limit(200);
+      events = ev || [];
+      renderRecent();
+      renderLogs();
+
+      const evChan = supabase.channel('events-live')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events' }, payload => {
+          events.unshift(payload.new);
+          if (events.length>500) events.pop();
+          renderRecent(); renderLogs();
+        }).subscribe();
+
+      // Players
+      let { data: pl } = await supabase.from('players').select('*').order('last_seen', { ascending: false }).limit(500);
+      players = pl || [];
+      renderPlayers();
+
+      const playerChan = supabase.channel('players-live')
+        .on('postgres_changes', { event: 'UPDATE', schema:'public', table:'players' }, () => reloadPlayers())
+        .on('postgres_changes', { event: 'INSERT', schema:'public', table:'players' }, () => reloadPlayers())
+        .subscribe();
+
+      // Bans
+      let { data: bn } = await supabase.from('bans').select('*').order('created_at', { ascending: false }).limit(200);
+      bans = bn || [];
+      renderBans();
+
+      const bansChan = supabase.channel('bans-live')
+        .on('postgres_changes', { event: 'INSERT', schema:'public', table:'bans' }, payload => { bans.unshift(payload.new); renderBans(); })
+        .subscribe();
+
+      // Cosmetic: server name if present on latest event
+      document.getElementById('serverName').textContent = events[0]?.server_name || "—";
+      document.getElementById('infoName').textContent = events[0]?.server_name || "—";
+      document.getElementById('infoMax').textContent = "—";
+      document.getElementById('kpiMax').textContent = "—";
+    }
+
+    async function reloadPlayers() {
+      let { data: pl } = await supabase.from('players').select('*').order('last_seen', { ascending: false }).limit(500);
+      players = pl || [];
+      renderPlayers();
+    }
+
+    // Renderers
+    function renderRecent() {
+      const box = document.getElementById('recent');
+      if (!events.length) { box.textContent = 'Waiting for events…'; return; }
+      box.innerHTML = events.slice(0,10).map(e => `
+        <div style="display:grid;grid-template-columns:100px 1fr;gap:8px;border-bottom:1px solid var(--line);padding:6px 0">
+          <div class="muted" style="font-size:12px">${fmtTime(e.created_at)}</div>
+          <div>
+            <div style="font-weight:600">${e.code}</div>
+            <div class="muted" style="font-size:12px">${e.detail ? JSON.stringify(e.detail) : ''}</div>
+          </div>
+        </div>`).join('');
+      document.getElementById('kpiEvents').textContent = Math.min(10, events.length);
+    }
+
+    function renderLogs() {
+      const q = (document.getElementById('logsQuery').value || '').toLowerCase();
+      const rows = events.filter(e => !q || (e.code||'').toLowerCase().includes(q) || JSON.stringify(e.detail||{}).toLowerCase().includes(q));
+      const tbody = document.querySelector('#logsTable tbody');
+      tbody.innerHTML = rows.map(e => `
+        <tr>
+          <td class="muted">${timeAgo(e.created_at)}</td>
+          <td><strong>${e.code}</strong></td>
+          <td>${e.severity||''}</td>
+          <td>${e.server_name||''}</td>
+          <td>${e.detail ? JSON.stringify(e.detail) : ''}</td>
+        </tr>`).join('');
+    }
+    document.getElementById('logsQuery').addEventListener('input', renderLogs);
+
+    function renderPlayers() {
+      const q = (document.getElementById('playersQuery').value || '').toLowerCase();
+      const rows = players.filter(p => !q || (p.name||'').toLowerCase().includes(q) || String(p.id).includes(q));
+      document.getElementById('playersCount').textContent = rows.length + ' results';
+      const tbody = document.querySelector('#playersTable tbody');
+      tbody.innerHTML = rows.map(p => `
+        <tr>
+          <td>${p.name||'Unknown'}</td>
+          <td>${p.id}</td>
+          <td>${p.trust_score ?? 0}</td>
+          <td class="muted">${p.last_seen ? new Date(p.last_seen).toLocaleString() : ''}</td>
+        </tr>`).join('');
+      // KPI: online derived is not accurate without presence table, leave 0
+      document.getElementById('kpiOnline').textContent = '0';
+    }
+    document.getElementById('playersQuery').addEventListener('input', renderPlayers);
+
+    function renderBans() {
+      const q = (document.getElementById('bansQuery').value || '').toLowerCase();
+      const rows = bans.filter(b => !q || (b.reason||'').toLowerCase().includes(q));
+      const tbody = document.querySelector('#bansTable tbody');
+      tbody.innerHTML = rows.map(b => `
+        <tr>
+          <td>${b.reason||'Banned'}</td>
+          <td>${b.player_id}</td>
+          <td class="muted">${new Date(b.created_at).toLocaleString()}</td>
+          <td class="muted">${b.created_by||''}</td>
+        </tr>`).join('');
+    }
+    document.getElementById('bansQuery').addEventListener('input', renderBans);
+
+    // Kick off
+    loadAll();
+  </script>
+</body>
+</html>
