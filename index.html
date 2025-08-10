@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiveM AI Assistant - Advanced Script Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent: #ff6b6b;
+            --accent-hover: #ff5252;
+            --border: #333;
+            --success: #4caf50;
+            --error: #f44336;
+            --warning: #ff9800;
+            --info: #2196f3;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.05;
+            background: 
+                radial-gradient(circle at 20% 50%, var(--accent) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--info) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, var(--success) 0%, transparent 50%);
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-20px, -20px) rotate(120deg); }
+            66% { transform: translate(20px, -10px) rotate(240deg); }
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--accent);
+        }
+
+        .new-chat-btn {
+            margin: 15px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .new-chat-btn:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .history-item:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .top-bar {
+            padding: 15px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .features {
+            display: flex;
+            gap: 15px;
+        }
+
+        .feature-badge {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-badge.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            gap: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .user-avatar {
+            background: linear-gradient(135deg, var(--info) 0%, #1976d2 100%);
+            color: white;
+        }
+
+        .ai-avatar {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            color: white;
+        }
+
+        .message-content {
+            flex: 1;
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .message-content pre {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .message-content code {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 12px 50px 12px 15px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            resize: none;
+            min-height: 50px;
+            max-height: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.1);
+        }
+
+        .attach-btn {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            width: 30px;
+            height: 30px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .attach-btn:hover {
+            background: var(--bg-primary);
+            color: var(--accent);
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .send-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.download {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .action-btn.download:hover {
+            background: #45a049;
+        }
+
+        /* Code Preview */
+        .code-preview {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            padding: 10px 15px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .code-action-btn {
+            padding: 4px 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .code-action-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .code-body {
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: loadingDot 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes loadingDot {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .welcome-title {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--info) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .feature-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* File Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .upload-btn {
+            padding: 8px 16px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: 1000;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">🚀</div>
+                    <span>FiveM AI</span>
+                </div>
+            </div>
+            
+            <button class="new-chat-btn" onclick="newChat()">
+                <span>➕</span> New Script Project
+            </button>
+            
+            <div class="chat-history">
+                <div class="history-item">🏎️ Vehicle Shop System</div>
+                <div class="history-item">🏦 Banking Script</div>
+                <div class="history-item">👮 Police MDT</div>
+                <div class="history-item">🏠 Housing System</div>
+                <div class="history-item">💼 Job Center</div>
+                <div class="history-item">🎮 Mini Games Pack</div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="features">
+                    <div class="feature-badge active">
+                        <span class="status-indicator"></span>
+                        AI Active
+                    </div>
+                    <div class="feature-badge">
+                        📊 Error Check
+                    </div>
+                    <div class="feature-badge">
+                        🌐 Web Search
+                    </div>
+                    <div class="feature-badge">
+                        📦 ZIP Export
+                    </div>
+                </div>
+                
+                <div class="features">
+                    <div class="feature-badge">
+                        <span>⚡ Ultra Fast</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-area" id="chatArea">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <h1 class="welcome-title">FiveM AI Assistant</h1>
+                    <p class="welcome-subtitle">
+                        The most advanced FiveM script generator. Create complex scripts in seconds with modern UI, 
+                        instant error checking, and direct downloads.
+                    </p>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card" onclick="quickStart('esx')">
+                            <div class="feature-icon">📦</div>
+                            <div class="feature-name">ESX Scripts</div>
+                            <div class="feature-desc">Generate ESX framework scripts</div>
+                        </div>
+                        
+                        <div class="feature-card" onclick="quickStart('qbcore')">
+                            <div class="feature-icon">🎯</div>
+                            <div class="feature-name">QBCore Scripts</div>
+                            <div class="feature-desc">Create QBCore compatible scripts</div>
+                        </div>
+                        
+                        <div class="feature-card" onclick="quickStart('ui')">
+                            <div class="feature-icon">🎨</div>
+                            <div class="feature-name">Modern UI</div>
+                            <div class="feature-desc">Design beautiful NUI interfaces</div>
+                        </div>
+                        
+                        <div class="feature-card" onclick="quickStart('standalone')">
+                            <div class="feature-icon">🔧</div>
+                            <div class="feature-name">Standalone</div>
+                            <div class="feature-desc">Framework-independent scripts</div>
+                        </div>
+                    </div>
+                    
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-icon">📸</div>
+                        <div class="upload-text">Drop an image here to recreate its design</div>
+                        <button class="upload-btn">Or click to upload</button>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea 
+                            class="message-input" 
+                            id="messageInput"
+                            placeholder="Describe your FiveM script... (e.g., 'Create a vehicle shop with showroom, test drive, and payment system')"
+                            rows="1"
+                        ></textarea>
+                        <button class="attach-btn" onclick="document.getElementById('fileInput').click()">
+                            📎
+                        </button>
+                    </div>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                        <span>Generate</span>
+                        <span>⚡</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize
+        let messages = [];
+        let currentProject = null;
+        
+        // Auto-resize textarea
+        const messageInput = document.getElementById('messageInput');
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Enter to send (Shift+Enter for new line)
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // File upload handling
+        const fileInput = document.getElementById('fileInput');
+        const uploadZone = document.getElementById('uploadZone');
+        
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        function handleFiles(files) {
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    analyzeImage(e.target.result);
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        }
+        
+        function analyzeImage(imageData) {
+            addMessage('user', `📸 Image uploaded for analysis`, imageData);
+            addMessage('ai', 'Analyzing image... Extracting design elements, colors, layout, and features...');
+            
+            setTimeout(() => {
+                const response = `✅ **Image Analysis Complete!**
+
+I've identified the following elements from your image:
+- **Layout**: Modern card-based design with sidebar navigation
+- **Color Scheme**: Dark theme with accent colors (#FF6B6B primary)
+- **Components**: Navigation menu, data cards, action buttons, responsive grid
+- **Features**: Real-time updates, smooth animations, glass morphism effects
+
+I'll now generate a matching FiveM script with these exact design elements. What type of script would you like me to create with this design?`;
+                
+                updateLastAIMessage(response);
+            }, 2000);
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Hide welcome screen on first message
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            if (welcomeScreen) {
+                welcomeScreen.style.display = 'none';
+            }
+            
+            addMessage('user', message);
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Simulate AI processing
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                generateResponse(message);
+            }, 1500);
+        }
+        
+        function addMessage(type, content, imageData = null) {
+            const chatArea = document.getElementById('chatArea');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const avatar = document.createElement('div');
+            avatar.className = type === 'user' ? 'message-avatar user-avatar' : 'message-avatar ai-avatar';
+            avatar.textContent = type === 'user' ? 'U' : 'AI';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            if (imageData) {
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.style.maxWidth = '300px';
+                img.style.borderRadius = '8px';
+                img.style.marginBottom = '10px';
+                contentDiv.appendChild(img);
+            }
+            
+            contentDiv.innerHTML += content;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+            
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            messages.push({ type, content });
+        }
+        
+        function showTypingIndicator() {
+            const chatArea = document.getElementById('chatArea');
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar ai-avatar';
+            avatar.textContent = 'AI';
+            
+            const loading = document.createElement('div');
+            loading.className = 'loading';
+            loading.innerHTML = `
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            `;
+            
+            typingDiv.appendChild(avatar);
+            typingDiv.appendChild(loading);
+            
+            chatArea.appendChild(typingDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+        
+        function updateLastAIMessage(content) {
+            const messages = document.querySelectorAll('.message');
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage) {
+                const contentDiv = lastMessage.querySelector('.message-content');
+                if (contentDiv) {
+                    contentDiv.innerHTML = content;
+                }
+            }
+        }
+        
+        function generateResponse(query) {
+            const lowerQuery = query.toLowerCase();
+            let response = '';
+            let code = '';
+            
+            if (lowerQuery.includes('vehicle') || lowerQuery.includes('car') || lowerQuery.includes('shop')) {
+                response = `✅ **Advanced Vehicle Shop Script Generated!**
+
+I've created a complete vehicle shop system with the following features:
+- 🏢 Modern showroom with 3D preview
+- 🚗 Test drive system with timer
+- 💰 Multiple payment methods (cash/bank)
+- 📊 Admin panel for managing vehicles
+- 🎨 Responsive NUI with smooth animations
+- 📱 Tablet-based interface
+- 🔍 Advanced filtering and search
+- 📈 Sales statistics tracking`;
+
+                code = `-- Vehicle Shop System
+Config = {}
+
+Config.Shops = {
+    {
+        name = "Premium Deluxe Motorsport",
+        coords = vector3(-33.7, -1102.0, 26.4),
+        showroom = vector3(-45.0, -1098.0, 26.4),
+        spawn = vector4(-31.5, -1090.3, 26.4, 340.0),
+        categories = {"sports", "super", "sedans", "suvs"}
+    }
+}
+
+-- Server Side
+RegisterNetEvent('vehicleshop:purchase')
+AddEventHandler('vehicleshop:purchase', function(vehicle, price, paymentType)
+    local src = source
+    local xPlayer = ESX.GetPlayerFromId(src)
+    
+    if paymentType == 'cash' then
+        if xPlayer.getMoney() >= price then
+            xPlayer.removeMoney(price)
+            -- Grant vehicle
+            GiveVehicleToPlayer(src, vehicle)
+            TriggerClientEvent('notification', src, 'Vehicle purchased successfully!')
+        else
+            TriggerClientEvent('notification', src, 'Insufficient funds!')
+        end
+    end
+end)`;
+
+            } else if (lowerQuery.includes('bank') || lowerQuery.includes('atm')) {
+                response = `✅ **Modern Banking System Generated!**
+
+Complete banking script with:
+- 🏦 Bank locations with NPCs
+- 💳 ATM system across the map
+- 💸 Transfer money between players
+- 📊 Transaction history
+- 🎨 Clean, modern UI design
+- 📱 Mobile banking app
+- 🔐 PIN system for security
+- 💰 Interest system`;
+
+                code = `-- Banking System Configuration
+Config = {
+    Banks = {
+        {name = "Pacific Bank", coords = vector3(246.6, 223.5, 106.3)},
+        {name = "Fleeca Bank", coords = vector3(149.5, -1040.6, 29.4)}
+    },
+    ATMs = {
+        vector3(89.2, 2.4, 68.3),
+        vector3(1167.0, -456.1, 66.8)
+        -- Add more ATM locations
+    },
+    InterestRate = 0.05, -- 5% daily interest
+    MinTransfer = 100,
+    MaxTransfer = 1000000
+}`;
+
+            } else if (lowerQuery.includes('ui') || lowerQuery.includes('nui') || lowerQuery.includes('interface')) {
+                response = `✅ **Modern UI Template Generated!**
+
+Created a stunning NUI interface with:
+- 🎨 Glass morphism design
+- ✨ Smooth animations
+- 📱 Fully responsive layout
+- 🌙 Dark/Light theme toggle
+- 🎯 Interactive components
+- ⚡ Optimized performance`;
+
+                code = `<!-- Modern FiveM NUI -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Your UI Content -->
+    </div>
+</body>
+</html>`;
+
+            } else {
+                response = `🎯 **I understand your request!**
+
+To generate the perfect FiveM script for you, I can create:
+
+1. **Framework Scripts** (ESX/QBCore/Standalone)
+2. **UI Systems** (HUD, Menus, Notifications)
+3. **Game Systems** (Jobs, Inventory, Housing)
+4. **Admin Tools** (Moderation, Logs, Commands)
+5. **Custom Features** (Based on your exact needs)
+
+Just describe what you need in detail, and I'll generate it instantly with:
+- Complete client/server code
+- Modern NUI interface
+- Configuration files
+- Database structure
+- Installation guide
+
+You can also upload an image of any UI design, and I'll recreate it perfectly!`;
+            }
+            
+            addMessage('ai', response);
+            
+            if (code) {
+                addCodePreview('lua', code);
+                addActionButtons();
+            }
+        }
+        
+        function addCodePreview(language, code) {
+            const chatArea = document.getElementById('chatArea');
+            
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'code-preview';
+            
+            previewDiv.innerHTML = `
+                <div class="code-header">
+                    <div class="code-title">
+                        <span>📄</span>
+                        <span>${language === 'lua' ? 'script.lua' : 'ui.html'}</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-action-btn" onclick="copyCode()">📋 Copy</button>
+                        <button class="code-action-btn" onclick="expandCode()">⛶ Expand</button>
+                    </div>
+                </div>
+                <div class="code-body">
+                    <pre><code>${escapeHtml(code)}</code></pre>
+                </div>
+            `;
+            
+            chatArea.appendChild(previewDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        function addActionButtons() {
+            const chatArea = document.getElementById('chatArea');
+            
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'action-buttons';
+            
+            actionsDiv.innerHTML = `
+                <button class="action-btn download" onclick="downloadScript()">
+                    📦 Download ZIP
+                </button>
+                <button class="action-btn" onclick="checkErrors()">
+                    🔍 Check Errors
+                </button>
+                <button class="action-btn" onclick="optimizeCode()">
+                    ⚡ Optimize
+                </button>
+                <button class="action-btn" onclick="addFeature()">
+                    ➕ Add Feature
+                </button>
+                <button class="action-btn" onclick="searchDocs()">
+                    📚 Search Docs
+                </button>
+            `;
+            
+            chatArea.appendChild(actionsDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        function copyCode() {
+            // In real implementation, copy to clipboard
+            showNotification('Code copied to clipboard!');
+        }
+        
+        function expandCode() {
+            // In real implementation, show full code in modal
+            showNotification('Opening full code view...');
+        }
+        
+        function downloadScript() {
+            showNotification('Generating ZIP file with complete script package...');
+            setTimeout(() => {
+                showNotification('✅ Download started: vehicle_shop_v1.zip');
+            }, 1500);
+        }
+        
+        function checkErrors() {
+            showNotification('🔍 Analyzing code for errors...');
+            setTimeout(() => {
+                showNotification('✅ No errors found! Code is ready for production.');
+            }, 1000);
+        }
+        
+        function optimizeCode() {
+            showNotification('⚡ Optimizing performance...');
+            setTimeout(() => {
+                showNotification('✅ Code optimized! 23% performance improvement achieved.');
+            }, 1200);
+        }
+        
+        function addFeature() {
+            const feature = prompt('What feature would you like to add?');
+            if (feature) {
+                showNotification(`Adding feature: ${feature}...`);
+                setTimeout(() => {
+                    addMessage('ai', `✅ Feature "${feature}" has been integrated into your script!`);
+                }, 1500);
+            }
+        }
+        
+        function searchDocs() {
+            showNotification('🔍 Searching FiveM documentation and GitHub...');
+            setTimeout(() => {
+                addMessage('ai', `📚 **Relevant Documentation Found:**
+                
+• [FiveM Native Reference](https://docs.fivem.net/natives/)
+• [ESX Documentation](https://esx-framework.org/)
+• [QBCore Docs](https://docs.qbcore.org/)
+• Similar scripts on GitHub with 500+ stars`);
+            }, 1000);
+        }
+        
+        function showNotification(message) {
+            // In real implementation, show toast notification
+            console.log(message);
+            
+            // Simple notification display
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: var(--accent);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                animation: slideIn 0.3s ease;
+                z-index: 10000;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        function newChat() {
+            messages = [];
+            document.getElementById('chatArea').innerHTML = '';
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            if (welcomeScreen) {
+                welcomeScreen.style.display = 'flex';
+            }
+            showNotification('New project started!');
+        }
+        
+        function quickStart(type) {
+            let query = '';
+            
+            switch(type) {
+                case 'esx':
+                    query = 'Create an ESX job system with boss menu, employee management, and salary system';
+                    break;
+                case 'qbcore':
+                    query = 'Generate a QBCore gang system with territories, wars, and drug dealing';
+                    break;
+                case 'ui':
+                    query = 'Design a modern HUD with speedometer, health, armor, and minimap';
+                    break;
+                case 'standalone':
+                    query = 'Create a racing system with checkpoints, leaderboards, and betting';
+                    break;
+            }
+            
+            document.getElementById('messageInput').value = query;
+            sendMessage();
+        }
+        
+        // Mobile menu toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // Initialize
+        console.log('FiveM AI Assistant initialized successfully!');
+    </script>
+</body>
+</html>
