@@ -1,0 +1,9 @@
+{
+  "name": "fearxdev-action",
+  "version": "1.0.0",
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "node-fetch": "^2.6.7",
+    "form-data": "^4.0.0"
+  }
+}
