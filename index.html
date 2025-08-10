@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FiveM AI Assistant - Advanced Script Generator</title>
+    <title>FiveM AI - Advanced Script Generator</title>
     <style>
         * {
             margin: 0;
@@ -13,17 +13,21 @@
 
         :root {
             --bg-primary: #0a0a0a;
-            --bg-secondary: #1a1a1a;
-            --bg-tertiary: #2a2a2a;
-            --text-primary: #e0e0e0;
-            --text-secondary: #a0a0a0;
+            --bg-secondary: #141414;
+            --bg-tertiary: #1f1f1f;
+            --bg-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-dim: #707070;
             --accent: #ff6b6b;
             --accent-hover: #ff5252;
-            --border: #333;
-            --success: #4caf50;
-            --error: #f44336;
-            --warning: #ff9800;
-            --info: #2196f3;
+            --accent-glow: rgba(255, 107, 107, 0.4);
+            --success: #52c41a;
+            --error: #ff4d4f;
+            --warning: #faad14;
+            --info: #1890ff;
+            --border: rgba(255, 255, 255, 0.1);
+            --code-bg: #0d1117;
         }
 
         body {
@@ -32,29 +36,6 @@
             color: var(--text-primary);
             height: 100vh;
             overflow: hidden;
-            position: relative;
-        }
-
-        /* Animated background */
-        .bg-animation {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            opacity: 0.05;
-            background: 
-                radial-gradient(circle at 20% 50%, var(--accent) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, var(--info) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, var(--success) 0%, transparent 50%);
-            animation: gradientShift 20s ease infinite;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(-20px, -20px) rotate(120deg); }
-            66% { transform: translate(20px, -10px) rotate(240deg); }
         }
 
         .container {
@@ -64,83 +45,89 @@
 
         /* Sidebar */
         .sidebar {
-            width: 260px;
+            width: 220px;
             background: var(--bg-secondary);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
         }
 
         .sidebar-header {
-            padding: 20px;
+            padding: 16px;
             border-bottom: 1px solid var(--border);
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
             display: flex;
             align-items: center;
             gap: 10px;
+            background: var(--accent);
         }
 
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: var(--accent);
-        }
-
-        .new-chat-btn {
-            margin: 15px;
-            padding: 12px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
+        .logo {
             display: flex;
             align-items: center;
             gap: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .new-chat-btn {
+            margin: 12px;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
         }
 
         .new-chat-btn:hover {
-            background: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            background: var(--bg-hover);
+            border-color: var(--accent);
         }
 
         .chat-history {
             flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 8px;
         }
 
         .history-item {
             padding: 10px;
-            margin-bottom: 8px;
-            background: var(--bg-tertiary);
-            border-radius: 8px;
+            margin-bottom: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
         }
 
         .history-item:hover {
-            background: var(--accent);
-            color: white;
-            transform: translateX(5px);
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .history-item.active {
+            background: var(--bg-hover);
+            color: var(--accent);
         }
 
         /* Main Content */
@@ -148,52 +135,41 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            position: relative;
         }
 
         .top-bar {
-            padding: 15px 20px;
+            height: 52px;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            padding: 0 20px;
+            gap: 12px;
         }
 
-        .features {
-            display: flex;
-            gap: 15px;
-        }
-
-        .feature-badge {
+        .action-chip {
             padding: 6px 12px;
             background: var(--bg-tertiary);
-            border-radius: 20px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
             font-size: 12px;
-            color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
         }
 
-        .feature-badge.active {
+        .action-chip:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .action-chip.active {
             background: var(--accent);
+            border-color: var(--accent);
             color: white;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
         }
 
         /* Chat Area */
@@ -201,15 +177,16 @@
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .message {
             display: flex;
-            gap: 15px;
-            animation: fadeIn 0.5s ease;
+            gap: 12px;
+            margin-bottom: 24px;
+            animation: fadeIn 0.3s ease;
         }
 
         @keyframes fadeIn {
@@ -224,57 +201,59 @@
         }
 
         .message-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            font-size: 14px;
             flex-shrink: 0;
         }
 
         .user-avatar {
-            background: linear-gradient(135deg, var(--info) 0%, #1976d2 100%);
-            color: white;
+            background: var(--info);
         }
 
         .ai-avatar {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-            color: white;
+            background: var(--accent);
         }
 
         .message-content {
             flex: 1;
-            background: var(--bg-secondary);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
         }
 
         .message-content pre {
-            background: var(--bg-tertiary);
-            padding: 12px;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
             border-radius: 8px;
+            padding: 16px;
             overflow-x: auto;
-            margin: 10px 0;
+            margin: 12px 0;
+            font-size: 13px;
         }
 
         .message-content code {
-            font-family: 'Fira Code', 'Courier New', monospace;
-            font-size: 14px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+            color: #e6e6e6;
         }
 
         /* Input Area */
         .input-area {
-            padding: 20px;
-            background: var(--bg-secondary);
             border-top: 1px solid var(--border);
+            padding: 16px 20px;
+            background: var(--bg-secondary);
         }
 
         .input-container {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: flex-end;
         }
 
@@ -285,64 +264,61 @@
 
         .message-input {
             width: 100%;
-            padding: 12px 50px 12px 15px;
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 8px;
+            padding: 10px 40px 10px 14px;
             color: var(--text-primary);
-            font-size: 15px;
+            font-size: 14px;
             resize: none;
-            min-height: 50px;
-            max-height: 200px;
-            transition: all 0.3s ease;
+            min-height: 44px;
+            max-height: 120px;
+            line-height: 1.5;
+            transition: border-color 0.2s;
         }
 
         .message-input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.1);
         }
 
         .attach-btn {
             position: absolute;
-            right: 10px;
-            bottom: 10px;
-            width: 30px;
-            height: 30px;
+            right: 8px;
+            bottom: 8px;
+            width: 28px;
+            height: 28px;
             background: transparent;
             border: none;
-            color: var(--text-secondary);
+            color: var(--text-dim);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 6px;
-            transition: all 0.3s ease;
+            border-radius: 4px;
+            transition: all 0.2s;
         }
 
         .attach-btn:hover {
-            background: var(--bg-primary);
-            color: var(--accent);
+            color: var(--text-secondary);
+            background: var(--bg-hover);
         }
 
         .send-btn {
-            padding: 12px 24px;
+            padding: 10px 20px;
             background: var(--accent);
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             color: white;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 14px;
         }
 
-        .send-btn:hover {
+        .send-btn:hover:not(:disabled) {
             background: var(--accent-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
         .send-btn:disabled {
@@ -350,67 +326,28 @@
             cursor: not-allowed;
         }
 
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 8px 16px;
-            background: var(--bg-tertiary);
+        /* Code Block */
+        .code-block {
+            background: var(--code-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .action-btn:hover {
-            background: var(--accent);
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        .action-btn.download {
-            background: var(--success);
-            border-color: var(--success);
-        }
-
-        .action-btn.download:hover {
-            background: #45a049;
-        }
-
-        /* Code Preview */
-        .code-preview {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            margin-top: 15px;
+            margin: 12px 0;
             overflow: hidden;
         }
 
         .code-header {
-            padding: 10px 15px;
-            background: var(--bg-primary);
-            border-bottom: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            padding: 8px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid var(--border);
         }
 
-        .code-title {
-            font-size: 13px;
+        .code-lang {
+            font-size: 12px;
             color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-weight: 500;
         }
 
         .code-actions {
@@ -418,50 +355,118 @@
             gap: 8px;
         }
 
-        .code-action-btn {
+        .code-btn {
             padding: 4px 8px;
-            background: var(--bg-secondary);
+            background: transparent;
             border: 1px solid var(--border);
             border-radius: 4px;
             color: var(--text-secondary);
             cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s ease;
+            font-size: 11px;
+            transition: all 0.2s;
         }
 
-        .code-action-btn:hover {
-            background: var(--accent);
-            color: white;
+        .code-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .code-content {
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* File Structure */
+        .file-structure {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        .file-tree {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .file-item {
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .file-item.folder {
+            color: var(--info);
+        }
+
+        .file-item.file {
+            color: var(--text-primary);
+            margin-left: 20px;
+        }
+
+        /* Export Options */
+        .export-options {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .export-btn:hover {
+            background: var(--bg-hover);
             border-color: var(--accent);
         }
 
-        .code-body {
-            padding: 15px;
-            max-height: 400px;
-            overflow-y: auto;
+        .export-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
         }
 
-        /* Loading Animation */
-        .loading {
+        .export-btn.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Loading */
+        .typing-indicator {
             display: flex;
-            gap: 5px;
-            padding: 10px;
+            gap: 4px;
+            padding: 8px;
         }
 
-        .loading-dot {
+        .typing-dot {
             width: 8px;
             height: 8px;
             background: var(--accent);
             border-radius: 50%;
-            animation: loadingDot 1.4s infinite ease-in-out both;
+            animation: typing 1.4s infinite ease-in-out both;
         }
 
-        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
-        @keyframes loadingDot {
+        @keyframes typing {
             0%, 80%, 100% {
-                transform: scale(0);
+                transform: scale(0.8);
                 opacity: 0.5;
             }
             40% {
@@ -470,161 +475,38 @@
             }
         }
 
-        /* Welcome Screen */
-        .welcome-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            text-align: center;
-            padding: 40px;
-        }
-
-        .welcome-title {
-            font-size: 48px;
-            font-weight: bold;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--info) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
-        }
-
-        .welcome-subtitle {
-            font-size: 18px;
-            color: var(--text-secondary);
-            margin-bottom: 40px;
-            max-width: 600px;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            max-width: 800px;
-            width: 100%;
-        }
-
-        .feature-card {
-            background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.2);
-        }
-
-        .feature-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .feature-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .feature-desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* File Upload Zone */
-        .upload-zone {
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-            margin-top: 15px;
-        }
-
-        .upload-zone.dragover {
-            border-color: var(--accent);
-            background: rgba(255, 107, 107, 0.05);
-        }
-
-        .upload-icon {
-            font-size: 48px;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-
-        .upload-text {
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-
-        .upload-btn {
-            padding: 8px 16px;
-            background: var(--accent);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .upload-btn:hover {
-            background: var(--accent-hover);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                height: 100%;
-                z-index: 1000;
-                transform: translateX(-100%);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Scrollbar Styling */
+        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
+            background: transparent;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--bg-tertiary);
+            background: var(--bg-hover);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent);
+            background: var(--text-dim);
         }
+
+        /* Syntax Highlighting */
+        .hljs-keyword { color: #ff79c6; }
+        .hljs-string { color: #f1fa8c; }
+        .hljs-number { color: #bd93f9; }
+        .hljs-function { color: #50fa7b; }
+        .hljs-comment { color: #6272a4; }
+        .hljs-variable { color: #8be9fd; }
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
-    
     <div class="container">
         <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
+        <div class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
                     <div class="logo-icon">🚀</div>
@@ -632,88 +514,68 @@
                 </div>
             </div>
             
-            <button class="new-chat-btn" onclick="newChat()">
-                <span>➕</span> New Script Project
+            <button class="new-chat-btn" onclick="aiSystem.newChat()">
+                <span>➕</span>
+                <span>New Script Project</span>
             </button>
             
-            <div class="chat-history">
-                <div class="history-item">🏎️ Vehicle Shop System</div>
-                <div class="history-item">🏦 Banking Script</div>
-                <div class="history-item">👮 Police MDT</div>
-                <div class="history-item">🏠 Housing System</div>
-                <div class="history-item">💼 Job Center</div>
-                <div class="history-item">🎮 Mini Games Pack</div>
+            <div class="chat-history" id="chatHistory">
+                <div class="history-item">
+                    <span>🚗</span>
+                    <span>Vehicle Shop System</span>
+                </div>
+                <div class="history-item">
+                    <span>🏦</span>
+                    <span>Banking Script</span>
+                </div>
+                <div class="history-item">
+                    <span>👮</span>
+                    <span>Police MDT</span>
+                </div>
+                <div class="history-item">
+                    <span>🏠</span>
+                    <span>Housing System</span>
+                </div>
+                <div class="history-item">
+                    <span>💼</span>
+                    <span>Job Center</span>
+                </div>
+                <div class="history-item">
+                    <span>🎮</span>
+                    <span>Mini Games Pack</span>
+                </div>
             </div>
         </div>
         
         <!-- Main Content -->
         <div class="main-content">
             <div class="top-bar">
-                <div class="features">
-                    <div class="feature-badge active">
-                        <span class="status-indicator"></span>
-                        AI Active
-                    </div>
-                    <div class="feature-badge">
-                        📊 Error Check
-                    </div>
-                    <div class="feature-badge">
-                        🌐 Web Search
-                    </div>
-                    <div class="feature-badge">
-                        📦 ZIP Export
-                    </div>
+                <div class="action-chip active" onclick="aiSystem.toggleFeature('ai')">
+                    <span>🤖</span>
+                    <span>AI Active</span>
                 </div>
-                
-                <div class="features">
-                    <div class="feature-badge">
-                        <span>⚡ Ultra Fast</span>
+                <div class="action-chip" onclick="aiSystem.toggleFeature('error')">
+                    <span>❌</span>
+                    <span>Error Check</span>
+                </div>
+                <div class="action-chip" onclick="aiSystem.toggleFeature('search')">
+                    <span>🔍</span>
+                    <span>Web Search</span>
+                </div>
+                <div class="action-chip" onclick="aiSystem.toggleFeature('export')">
+                    <span>📦</span>
+                    <span>ZIP Export</span>
+                </div>
+                <div style="margin-left: auto;">
+                    <div class="action-chip">
+                        <span>⚡</span>
+                        <span>Ultra Fast</span>
                     </div>
                 </div>
             </div>
             
             <div class="chat-area" id="chatArea">
-                <!-- Welcome Screen -->
-                <div class="welcome-screen" id="welcomeScreen">
-                    <h1 class="welcome-title">FiveM AI Assistant</h1>
-                    <p class="welcome-subtitle">
-                        The most advanced FiveM script generator. Create complex scripts in seconds with modern UI, 
-                        instant error checking, and direct downloads.
-                    </p>
-                    
-                    <div class="feature-grid">
-                        <div class="feature-card" onclick="quickStart('esx')">
-                            <div class="feature-icon">📦</div>
-                            <div class="feature-name">ESX Scripts</div>
-                            <div class="feature-desc">Generate ESX framework scripts</div>
-                        </div>
-                        
-                        <div class="feature-card" onclick="quickStart('qbcore')">
-                            <div class="feature-icon">🎯</div>
-                            <div class="feature-name">QBCore Scripts</div>
-                            <div class="feature-desc">Create QBCore compatible scripts</div>
-                        </div>
-                        
-                        <div class="feature-card" onclick="quickStart('ui')">
-                            <div class="feature-icon">🎨</div>
-                            <div class="feature-name">Modern UI</div>
-                            <div class="feature-desc">Design beautiful NUI interfaces</div>
-                        </div>
-                        
-                        <div class="feature-card" onclick="quickStart('standalone')">
-                            <div class="feature-icon">🔧</div>
-                            <div class="feature-name">Standalone</div>
-                            <div class="feature-desc">Framework-independent scripts</div>
-                        </div>
-                    </div>
-                    
-                    <div class="upload-zone" id="uploadZone">
-                        <div class="upload-icon">📸</div>
-                        <div class="upload-text">Drop an image here to recreate its design</div>
-                        <button class="upload-btn">Or click to upload</button>
-                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
-                    </div>
-                </div>
+                <!-- Messages will appear here -->
             </div>
             
             <div class="input-area">
@@ -728,10 +590,10 @@
                         <button class="attach-btn" onclick="document.getElementById('fileInput').click()">
                             📎
                         </button>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
                     </div>
-                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                        <span>Generate</span>
-                        <span>⚡</span>
+                    <button class="send-btn" id="sendBtn" onclick="aiSystem.processInput()">
+                        Generate
                     </button>
                 </div>
             </div>
@@ -739,521 +601,1593 @@
     </div>
     
     <script>
-        // Initialize
-        let messages = [];
-        let currentProject = null;
-        
-        // Auto-resize textarea
-        const messageInput = document.getElementById('messageInput');
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-        
-        // Enter to send (Shift+Enter for new line)
-        messageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        
-        // File upload handling
-        const fileInput = document.getElementById('fileInput');
-        const uploadZone = document.getElementById('uploadZone');
-        
-        uploadZone.addEventListener('click', () => fileInput.click());
-        
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('dragover');
-        });
-        
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
-        });
-        
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
-        });
-        
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
-        
-        function handleFiles(files) {
-            if (files.length > 0 && files[0].type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    analyzeImage(e.target.result);
+        // Advanced FiveM AI System
+        class FiveMIntelligentSystem {
+            constructor() {
+                this.context = [];
+                this.currentProject = null;
+                this.features = {
+                    ai: true,
+                    error: false,
+                    search: false,
+                    export: false
                 };
-                reader.readAsDataURL(files[0]);
+                this.scriptTemplates = this.loadTemplates();
+                this.init();
             }
-        }
-        
-        function analyzeImage(imageData) {
-            addMessage('user', `📸 Image uploaded for analysis`, imageData);
-            addMessage('ai', 'Analyzing image... Extracting design elements, colors, layout, and features...');
-            
-            setTimeout(() => {
-                const response = `✅ **Image Analysis Complete!**
 
-I've identified the following elements from your image:
-- **Layout**: Modern card-based design with sidebar navigation
-- **Color Scheme**: Dark theme with accent colors (#FF6B6B primary)
-- **Components**: Navigation menu, data cards, action buttons, responsive grid
-- **Features**: Real-time updates, smooth animations, glass morphism effects
+            init() {
+                const input = document.getElementById('messageInput');
+                input.addEventListener('input', () => this.autoResize(input));
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.processInput();
+                    }
+                });
 
-I'll now generate a matching FiveM script with these exact design elements. What type of script would you like me to create with this design?`;
+                // File upload
+                document.getElementById('fileInput').addEventListener('change', (e) => {
+                    this.handleFileUpload(e.target.files);
+                });
+            }
+
+            autoResize(element) {
+                element.style.height = 'auto';
+                element.style.height = (element.scrollHeight) + 'px';
+            }
+
+            async processInput() {
+                const input = document.getElementById('messageInput');
+                const query = input.value.trim();
+                if (!query) return;
+
+                this.addMessage('user', query);
+                input.value = '';
+                this.autoResize(input);
+
+                // Show typing indicator
+                this.showTyping();
+
+                // Process with AI
+                setTimeout(() => {
+                    this.generateIntelligentResponse(query);
+                }, 1000);
+            }
+
+            generateIntelligentResponse(query) {
+                this.removeTyping();
                 
-                updateLastAIMessage(response);
-            }, 2000);
-        }
-        
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            // Hide welcome screen on first message
-            const welcomeScreen = document.getElementById('welcomeScreen');
-            if (welcomeScreen) {
-                welcomeScreen.style.display = 'none';
+                const analysis = this.analyzeQuery(query);
+                const response = this.buildCompleteScript(analysis);
+                
+                this.addMessage('ai', response.message, response.code);
             }
-            
-            addMessage('user', message);
-            input.value = '';
-            input.style.height = 'auto';
-            
-            // Simulate AI processing
-            showTypingIndicator();
-            
-            setTimeout(() => {
-                removeTypingIndicator();
-                generateResponse(message);
-            }, 1500);
-        }
-        
-        function addMessage(type, content, imageData = null) {
-            const chatArea = document.getElementById('chatArea');
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-            
-            const avatar = document.createElement('div');
-            avatar.className = type === 'user' ? 'message-avatar user-avatar' : 'message-avatar ai-avatar';
-            avatar.textContent = type === 'user' ? 'U' : 'AI';
-            
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-            
-            if (imageData) {
-                const img = document.createElement('img');
-                img.src = imageData;
-                img.style.maxWidth = '300px';
-                img.style.borderRadius = '8px';
-                img.style.marginBottom = '10px';
-                contentDiv.appendChild(img);
-            }
-            
-            contentDiv.innerHTML += content;
-            
-            messageDiv.appendChild(avatar);
-            messageDiv.appendChild(contentDiv);
-            
-            chatArea.appendChild(messageDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-            
-            messages.push({ type, content });
-        }
-        
-        function showTypingIndicator() {
-            const chatArea = document.getElementById('chatArea');
-            
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message typing-indicator';
-            typingDiv.id = 'typingIndicator';
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar ai-avatar';
-            avatar.textContent = 'AI';
-            
-            const loading = document.createElement('div');
-            loading.className = 'loading';
-            loading.innerHTML = `
-                <div class="loading-dot"></div>
-                <div class="loading-dot"></div>
-                <div class="loading-dot"></div>
-            `;
-            
-            typingDiv.appendChild(avatar);
-            typingDiv.appendChild(loading);
-            
-            chatArea.appendChild(typingDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-        
-        function removeTypingIndicator() {
-            const indicator = document.getElementById('typingIndicator');
-            if (indicator) {
-                indicator.remove();
-            }
-        }
-        
-        function updateLastAIMessage(content) {
-            const messages = document.querySelectorAll('.message');
-            const lastMessage = messages[messages.length - 1];
-            if (lastMessage) {
-                const contentDiv = lastMessage.querySelector('.message-content');
-                if (contentDiv) {
-                    contentDiv.innerHTML = content;
+
+            analyzeQuery(query) {
+                const lower = query.toLowerCase();
+                const analysis = {
+                    framework: null,
+                    type: null,
+                    features: [],
+                    complexity: 'medium',
+                    needsUI: false,
+                    needsDB: false
+                };
+
+                // Framework detection
+                if (lower.includes('esx')) analysis.framework = 'esx';
+                else if (lower.includes('qbcore') || lower.includes('qb')) analysis.framework = 'qbcore';
+                else if (lower.includes('vrp')) analysis.framework = 'vrp';
+                else analysis.framework = 'standalone';
+
+                // Type detection
+                if (lower.includes('job') || lower.includes('boss')) {
+                    analysis.type = 'job_system';
+                    analysis.features = ['boss_menu', 'employee_management', 'salary', 'grades', 'permissions'];
+                    analysis.needsDB = true;
+                    analysis.needsUI = true;
+                } else if (lower.includes('vehicle') || lower.includes('car') || lower.includes('garage')) {
+                    analysis.type = 'vehicle_system';
+                    analysis.features = ['shop', 'garage', 'impound', 'keys', 'fuel'];
+                    analysis.needsDB = true;
+                    analysis.needsUI = true;
+                } else if (lower.includes('bank') || lower.includes('atm')) {
+                    analysis.type = 'banking';
+                    analysis.features = ['accounts', 'transfers', 'atm', 'loans', 'interest'];
+                    analysis.needsDB = true;
+                    analysis.needsUI = true;
+                } else if (lower.includes('inventory')) {
+                    analysis.type = 'inventory';
+                    analysis.features = ['drag_drop', 'hotbar', 'weight', 'metadata', 'crafting'];
+                    analysis.needsUI = true;
+                } else if (lower.includes('house') || lower.includes('housing') || lower.includes('property')) {
+                    analysis.type = 'housing';
+                    analysis.features = ['interior', 'furniture', 'storage', 'keys', 'garage'];
+                    analysis.needsDB = true;
+                    analysis.needsUI = true;
+                } else if (lower.includes('hud') || lower.includes('ui')) {
+                    analysis.type = 'hud';
+                    analysis.needsUI = true;
+                    analysis.features = ['speedometer', 'health', 'armor', 'hunger', 'thirst'];
+                } else if (lower.includes('admin') || lower.includes('moderation')) {
+                    analysis.type = 'admin';
+                    analysis.features = ['commands', 'logs', 'spectate', 'teleport', 'permissions'];
+                    analysis.needsUI = true;
+                } else {
+                    analysis.type = 'custom';
+                    analysis.features = this.extractFeatures(query);
                 }
+
+                // Complexity detection
+                if (analysis.features.length > 5 || lower.includes('advanced') || lower.includes('complex')) {
+                    analysis.complexity = 'high';
+                } else if (analysis.features.length < 3 || lower.includes('simple') || lower.includes('basic')) {
+                    analysis.complexity = 'low';
+                }
+
+                return analysis;
             }
+
+            extractFeatures(query) {
+                const features = [];
+                const keywords = {
+                    'menu': 'interactive_menu',
+                    'notification': 'notification_system',
+                    'command': 'chat_commands',
+                    'save': 'data_persistence',
+                    'permission': 'permission_system',
+                    'log': 'logging_system',
+                    'webhook': 'discord_webhook',
+                    'zone': 'zone_system',
+                    'marker': 'world_markers',
+                    'blip': 'map_blips'
+                };
+
+                for (const [key, value] of Object.entries(keywords)) {
+                    if (query.toLowerCase().includes(key)) {
+                        features.push(value);
+                    }
+                }
+
+                return features.length > 0 ? features : ['basic_functionality'];
+            }
+
+            buildCompleteScript(analysis) {
+                let code = {};
+                let message = `# ✅ **Advanced ${this.formatTitle(analysis.type)} Generated!**\n\n`;
+                
+                message += `**Framework:** ${analysis.framework.toUpperCase()}\n`;
+                message += `**Complexity:** ${analysis.complexity.toUpperCase()}\n`;
+                message += `**Features Included:**\n`;
+                
+                analysis.features.forEach(feature => {
+                    message += `- ${this.formatFeature(feature)}\n`;
+                });
+
+                // Generate complete script structure
+                if (analysis.type === 'job_system') {
+                    code = this.generateJobSystem(analysis);
+                } else if (analysis.type === 'vehicle_system') {
+                    code = this.generateVehicleSystem(analysis);
+                } else if (analysis.type === 'banking') {
+                    code = this.generateBankingSystem(analysis);
+                } else if (analysis.type === 'inventory') {
+                    code = this.generateInventorySystem(analysis);
+                } else if (analysis.type === 'housing') {
+                    code = this.generateHousingSystem(analysis);
+                } else if (analysis.type === 'hud') {
+                    code = this.generateHUDSystem(analysis);
+                } else if (analysis.type === 'admin') {
+                    code = this.generateAdminSystem(analysis);
+                } else {
+                    code = this.generateCustomScript(analysis);
+                }
+
+                return { message, code };
+            }
+
+            generateJobSystem(analysis) {
+                const framework = analysis.framework;
+                return {
+                    'fxmanifest.lua': `fx_version 'cerulean'
+game 'gta5'
+
+author 'FiveM AI Generator'
+description 'Advanced Job System with Boss Menu'
+version '2.0.0'
+
+shared_scripts {
+    '@${framework}/imports.lua',
+    'config.lua'
+}
+
+client_scripts {
+    'client/main.lua',
+    'client/boss.lua',
+    'client/employee.lua',
+    'client/utils.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/main.lua',
+    'server/boss.lua',
+    'server/employee.lua',
+    'server/paycheck.lua',
+    'server/utils.lua'
+}
+
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/css/style.css',
+    'html/js/app.js',
+    'html/img/*.png'
+}
+
+dependencies {
+    '${framework}',
+    'oxmysql'
+}`,
+                    'config.lua': `Config = {}
+
+Config.Jobs = {
+    ['police'] = {
+        label = 'Police Department',
+        defaultDuty = true,
+        offDutyPay = false,
+        grades = {
+            [0] = { name = 'Recruit', payment = 500 },
+            [1] = { name = 'Officer', payment = 750 },
+            [2] = { name = 'Senior Officer', payment = 1000 },
+            [3] = { name = 'Sergeant', payment = 1250 },
+            [4] = { name = 'Lieutenant', payment = 1500 },
+            [5] = { name = 'Captain', payment = 1750 },
+            [6] = { name = 'Chief', payment = 2000, isboss = true }
+        },
+        bossMenu = vector3(461.45, -986.2, 30.73),
+        stash = {
+            size = 5000000,
+            slots = 100
+        },
+        vehicles = {
+            {model = 'police', label = 'Police Cruiser', minGrade = 0},
+            {model = 'police2', label = 'Police SUV', minGrade = 2},
+            {model = 'policeb', label = 'Police Bike', minGrade = 1}
         }
-        
-        function generateResponse(query) {
-            const lowerQuery = query.toLowerCase();
-            let response = '';
-            let code = '';
-            
-            if (lowerQuery.includes('vehicle') || lowerQuery.includes('car') || lowerQuery.includes('shop')) {
-                response = `✅ **Advanced Vehicle Shop Script Generated!**
-
-I've created a complete vehicle shop system with the following features:
-- 🏢 Modern showroom with 3D preview
-- 🚗 Test drive system with timer
-- 💰 Multiple payment methods (cash/bank)
-- 📊 Admin panel for managing vehicles
-- 🎨 Responsive NUI with smooth animations
-- 📱 Tablet-based interface
-- 🔍 Advanced filtering and search
-- 📈 Sales statistics tracking`;
-
-                code = `-- Vehicle Shop System
-Config = {}
-
-Config.Shops = {
-    {
-        name = "Premium Deluxe Motorsport",
-        coords = vector3(-33.7, -1102.0, 26.4),
-        showroom = vector3(-45.0, -1098.0, 26.4),
-        spawn = vector4(-31.5, -1090.3, 26.4, 340.0),
-        categories = {"sports", "super", "sedans", "suvs"}
+    },
+    ['ambulance'] = {
+        label = 'Emergency Medical Services',
+        defaultDuty = true,
+        offDutyPay = false,
+        grades = {
+            [0] = { name = 'EMT', payment = 500 },
+            [1] = { name = 'Paramedic', payment = 750 },
+            [2] = { name = 'Doctor', payment = 1000 },
+            [3] = { name = 'Surgeon', payment = 1500 },
+            [4] = { name = 'Chief of Medicine', payment = 2000, isboss = true }
+        },
+        bossMenu = vector3(335.46, -594.52, 43.28),
+        stash = {
+            size = 3000000,
+            slots = 50
+        }
     }
 }
 
--- Server Side
-RegisterNetEvent('vehicleshop:purchase')
-AddEventHandler('vehicleshop:purchase', function(vehicle, price, paymentType)
-    local src = source
-    local xPlayer = ESX.GetPlayerFromId(src)
+Config.PaycheckInterval = 30 -- minutes
+Config.EnableSocietyFunds = true
+Config.EnableOffDutyJobs = true
+Config.UseTarget = true -- Use qb-target/ox_target instead of markers`,
+                    'client/main.lua': `local ${framework === 'esx' ? 'ESX' : 'QBCore'} = nil
+local PlayerData = {}
+local onDuty = false
+
+Citizen.CreateThread(function()
+    ${framework === 'esx' ? `while ESX == nil do
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+        Citizen.Wait(0)
+    end` : `QBCore = exports['qb-core']:GetCoreObject()`}
     
-    if paymentType == 'cash' then
-        if xPlayer.getMoney() >= price then
-            xPlayer.removeMoney(price)
-            -- Grant vehicle
-            GiveVehicleToPlayer(src, vehicle)
-            TriggerClientEvent('notification', src, 'Vehicle purchased successfully!')
+    PlayerData = ${framework === 'esx' ? 'ESX.GetPlayerData()' : 'QBCore.Functions.GetPlayerData()'}
+end)
+
+RegisterNetEvent('${framework}:setJob')
+AddEventHandler('${framework}:setJob', function(job)
+    PlayerData.job = job
+    refreshJobZones()
+end)
+
+-- Job Zones Management
+function refreshJobZones()
+    if not PlayerData.job then return end
+    
+    local jobConfig = Config.Jobs[PlayerData.job.name]
+    if not jobConfig then return end
+    
+    -- Boss Menu Zone
+    if PlayerData.job.isboss and jobConfig.bossMenu then
+        if Config.UseTarget then
+            exports['qb-target']:AddBoxZone('job_boss_' .. PlayerData.job.name, jobConfig.bossMenu, 2.0, 2.0, {
+                name = 'job_boss_' .. PlayerData.job.name,
+                heading = 0,
+                debugPoly = false,
+                minZ = jobConfig.bossMenu.z - 1,
+                maxZ = jobConfig.bossMenu.z + 1
+            }, {
+                options = {
+                    {
+                        type = "client",
+                        event = "jobs:client:openBossMenu",
+                        icon = "fas fa-briefcase",
+                        label = "Boss Menu"
+                    }
+                },
+                distance = 2.0
+            })
         else
-            TriggerClientEvent('notification', src, 'Insufficient funds!')
+            createMarker(jobConfig.bossMenu, function()
+                openBossMenu()
+            end)
         end
     end
-end)`;
+end
 
-            } else if (lowerQuery.includes('bank') || lowerQuery.includes('atm')) {
-                response = `✅ **Modern Banking System Generated!**
+-- Duty Toggle
+RegisterCommand('duty', function()
+    if not PlayerData.job then return end
+    
+    local jobConfig = Config.Jobs[PlayerData.job.name]
+    if not jobConfig then return end
+    
+    onDuty = not onDuty
+    TriggerServerEvent('jobs:server:updateDuty', onDuty)
+    
+    ${framework === 'esx' ? 'ESX.ShowNotification' : 'QBCore.Functions.Notify'}(
+        onDuty and 'You are now on duty' or 'You are now off duty',
+        onDuty and 'success' or 'error'
+    )
+end)
 
-Complete banking script with:
-- 🏦 Bank locations with NPCs
-- 💳 ATM system across the map
-- 💸 Transfer money between players
-- 📊 Transaction history
-- 🎨 Clean, modern UI design
-- 📱 Mobile banking app
-- 🔐 PIN system for security
-- 💰 Interest system`;
+-- Clock In/Out System
+function createClockInStation(coords)
+    Citizen.CreateThread(function()
+        while true do
+            local sleep = 1000
+            local playerPed = PlayerPedId()
+            local playerCoords = GetEntityCoords(playerPed)
+            local distance = #(playerCoords - coords)
+            
+            if distance < 10.0 then
+                sleep = 0
+                DrawMarker(2, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.2, 255, 255, 255, 255, false, false, 2, true, nil, nil, false)
+                
+                if distance < 2.0 then
+                    DrawText3D(coords.x, coords.y, coords.z + 0.3, onDuty and '[E] Clock Out' or '[E] Clock In')
+                    
+                    if IsControlJustPressed(0, 38) then
+                        onDuty = not onDuty
+                        TriggerServerEvent('jobs:server:updateDuty', onDuty)
+                    end
+                end
+            end
+            
+            Citizen.Wait(sleep)
+        end
+    end)
+end
 
-                code = `-- Banking System Configuration
-Config = {
-    Banks = {
-        {name = "Pacific Bank", coords = vector3(246.6, 223.5, 106.3)},
-        {name = "Fleeca Bank", coords = vector3(149.5, -1040.6, 29.4)}
+-- Utility Functions
+function DrawText3D(x, y, z, text)
+    SetTextScale(0.35, 0.35)
+    SetTextFont(4)
+    SetTextProportional(1)
+    SetTextColour(255, 255, 255, 215)
+    SetTextEntry("STRING")
+    SetTextCentre(true)
+    AddTextComponentString(text)
+    SetDrawOrigin(x, y, z, 0)
+    DrawText(0.0, 0.0)
+    local factor = (string.len(text)) / 370
+    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
+    ClearDrawOrigin()
+end`,
+                    'server/main.lua': `local ${framework === 'esx' ? 'ESX' : 'QBCore'} = nil
+
+${framework === 'esx' ? `TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)` : `QBCore = exports['qb-core']:GetCoreObject()`}
+
+local jobAccounts = {}
+local employeeDutyStatus = {}
+
+-- Initialize job accounts
+MySQL.ready(function()
+    MySQL.Async.fetchAll('SELECT * FROM job_accounts', {}, function(results)
+        for _, account in ipairs(results) do
+            jobAccounts[account.name] = account.money
+        end
+    end)
+end)
+
+-- Duty Management
+RegisterNetEvent('jobs:server:updateDuty')
+AddEventHandler('jobs:server:updateDuty', function(status)
+    local src = source
+    local Player = ${framework === 'esx' ? 'ESX.GetPlayerFromId(src)' : 'QBCore.Functions.GetPlayer(src)'}
+    
+    if Player then
+        local identifier = ${framework === 'esx' ? 'Player.identifier' : 'Player.PlayerData.citizenid'}
+        employeeDutyStatus[identifier] = status
+        
+        -- Update player metadata
+        ${framework === 'esx' ? '' : `Player.Functions.SetMetaData('onduty', status)`}
+        
+        -- Log duty change
+        logDutyChange(src, Player, status)
+    end
+end)
+
+-- Paycheck System
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(Config.PaycheckInterval * 60000)
+        
+        for _, playerId in ipairs(GetPlayers()) do
+            local Player = ${framework === 'esx' ? 'ESX.GetPlayerFromId(playerId)' : 'QBCore.Functions.GetPlayer(playerId)'}
+            
+            if Player then
+                local job = ${framework === 'esx' ? 'Player.job' : 'Player.PlayerData.job'}
+                local jobConfig = Config.Jobs[job.name]
+                
+                if jobConfig then
+                    local grade = jobConfig.grades[job.grade]
+                    
+                    if grade and grade.payment > 0 then
+                        local identifier = ${framework === 'esx' ? 'Player.identifier' : 'Player.PlayerData.citizenid'}
+                        
+                        if employeeDutyStatus[identifier] or not jobConfig.defaultDuty then
+                            ${framework === 'esx' ? 'Player.addAccountMoney("bank", grade.payment)' : 'Player.Functions.AddMoney("bank", grade.payment)'}
+                            
+                            TriggerClientEvent('${framework === 'esx' ? 'esx:showNotification' : 'QBCore:Notify'}', playerId, 
+                                'Paycheck received: $' .. grade.payment, 'success')
+                            
+                            -- Log paycheck
+                            logPaycheck(playerId, Player, grade.payment)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Society Fund Management
+function addToSocietyFund(jobName, amount)
+    if not Config.EnableSocietyFunds then return false end
+    
+    if jobAccounts[jobName] then
+        jobAccounts[jobName] = jobAccounts[jobName] + amount
+        
+        MySQL.Async.execute('UPDATE job_accounts SET money = @money WHERE name = @name', {
+            ['@money'] = jobAccounts[jobName],
+            ['@name'] = jobName
+        })
+        
+        return true
+    end
+    
+    return false
+end
+
+function removeFromSocietyFund(jobName, amount)
+    if not Config.EnableSocietyFunds then return false end
+    
+    if jobAccounts[jobName] and jobAccounts[jobName] >= amount then
+        jobAccounts[jobName] = jobAccounts[jobName] - amount
+        
+        MySQL.Async.execute('UPDATE job_accounts SET money = @money WHERE name = @name', {
+            ['@money'] = jobAccounts[jobName],
+            ['@name'] = jobName
+        })
+        
+        return true
+    end
+    
+    return false
+end
+
+-- Export functions
+exports('addToSocietyFund', addToSocietyFund)
+exports('removeFromSocietyFund', removeFromSocietyFund)
+exports('getSocietyFund', function(jobName)
+    return jobAccounts[jobName] or 0
+end)`,
+                    'html/index.html': `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boss Menu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="header">
+            <h1>Boss Management</h1>
+            <button class="close-btn" onclick="closeBossMenu()">✖</button>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="employees">Employees</button>
+            <button class="tab" data-tab="recruitment">Recruitment</button>
+            <button class="tab" data-tab="society">Society Fund</button>
+            <button class="tab" data-tab="grades">Grades</button>
+        </div>
+        
+        <div class="content">
+            <div class="tab-content active" id="employees">
+                <div class="employee-list">
+                    <!-- Employee cards will be generated here -->
+                </div>
+            </div>
+            
+            <div class="tab-content" id="recruitment">
+                <div class="nearby-citizens">
+                    <!-- Nearby citizens list -->
+                </div>
+            </div>
+            
+            <div class="tab-content" id="society">
+                <div class="society-info">
+                    <h2>Society Balance</h2>
+                    <p class="balance">$0</p>
+                    
+                    <div class="transaction-form">
+                        <input type="number" id="amount" placeholder="Amount">
+                        <button onclick="deposit()">Deposit</button>
+                        <button onclick="withdraw()">Withdraw</button>
+                    </div>
+                    
+                    <div class="transaction-history">
+                        <!-- Transaction history -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="grades">
+                <div class="grade-management">
+                    <!-- Grade configuration -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>`,
+                    'html/css/style.css': `* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #fff;
+}
+
+.container {
+    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.header h1 {
+    font-size: 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: rgba(255, 107, 107, 0.3);
+    transform: rotate(90deg);
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.tab {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tab:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.employee-list {
+    display: grid;
+    gap: 15px;
+}
+
+.employee-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.employee-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.employee-info h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.employee-info p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.employee-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.action-btn.promote {
+    background: rgba(76, 175, 80, 0.3);
+    border-color: rgba(76, 175, 80, 0.5);
+}
+
+.action-btn.fire {
+    background: rgba(244, 67, 54, 0.3);
+    border-color: rgba(244, 67, 54, 0.5);
+}
+
+.balance {
+    font-size: 48px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 20px 0;
+}
+
+.transaction-form {
+    display: flex;
+    gap: 10px;
+    margin: 30px 0;
+}
+
+.transaction-form input {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 16px;
+}
+
+.transaction-form button {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.transaction-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}`
+                };
+            }
+
+            generateVehicleSystem(analysis) {
+                return {
+                    'fxmanifest.lua': `fx_version 'cerulean'
+game 'gta5'
+
+author 'FiveM AI Generator'
+description 'Advanced Vehicle Shop & Garage System'
+version '2.0.0'
+
+shared_scripts {
+    '@${analysis.framework}/imports.lua',
+    'config.lua'
+}
+
+client_scripts {
+    'client/main.lua',
+    'client/shop.lua',
+    'client/garage.lua',
+    'client/showroom.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/main.lua',
+    'server/shop.lua',
+    'server/garage.lua'
+}
+
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/css/*.css',
+    'html/js/*.js',
+    'html/img/*.png'
+}`,
+                    'config.lua': `Config = {}
+
+Config.Shops = {
+    ['pdm'] = {
+        name = 'Premium Deluxe Motorsport',
+        blip = {
+            coords = vector3(-33.7, -1102.0, 26.4),
+            sprite = 326,
+            color = 3,
+            scale = 0.8
+        },
+        showroom = {
+            vector4(-47.5, -1097.2, 25.4, 120.0),
+            vector4(-54.7, -1097.0, 25.4, 120.0),
+            vector4(-49.8, -1083.9, 25.4, 200.0),
+            vector4(-46.6, -1094.8, 25.4, 120.0)
+        },
+        testDrive = {
+            spawn = vector4(-11.87, -1080.87, 25.67, 132.0),
+            duration = 120, -- seconds
+            route = {
+                vector3(228.3, -992.5, 29.0),
+                vector3(367.0, -603.5, 28.5),
+                vector3(-85.0, -819.0, 35.5)
+            }
+        },
+        categories = {
+            ['sports'] = 'Sports',
+            ['sedans'] = 'Sedans',
+            ['suvs'] = 'SUVs',
+            ['coupes'] = 'Coupes',
+            ['muscle'] = 'Muscle',
+            ['super'] = 'Super',
+            ['motorcycles'] = 'Motorcycles'
+        }
+    }
+}
+
+Config.Vehicles = {
+    ['sports'] = {
+        {model = 'comet2', name = 'Comet', price = 65000, stock = 10},
+        {model = 'coquette', name = 'Coquette', price = 55000, stock = 8},
+        {model = 'elegy2', name = 'Elegy RH8', price = 38000, stock = 15},
+        {model = 'feltzer2', name = 'Feltzer', price = 62000, stock = 6}
     },
-    ATMs = {
-        vector3(89.2, 2.4, 68.3),
-        vector3(1167.0, -456.1, 66.8)
-        -- Add more ATM locations
+    ['sedans'] = {
+        {model = 'asea', name = 'Asea', price = 5500, stock = 25},
+        {model = 'cognoscenti', name = 'Cognoscenti', price = 55000, stock = 5},
+        {model = 'emperor', name = 'Emperor', price = 8500, stock = 20},
+        {model = 'fugitive', name = 'Fugitive', price = 24000, stock = 12}
     },
-    InterestRate = 0.05, -- 5% daily interest
-    MinTransfer = 100,
-    MaxTransfer = 1000000
-}`;
+    ['super'] = {
+        {model = 'adder', name = 'Adder', price = 900000, stock = 2},
+        {model = 'zentorno', name = 'Zentorno', price = 725000, stock = 3},
+        {model = 't20', name = 'T20', price = 850000, stock = 2},
+        {model = 'turismor', name = 'Turismo R', price = 500000, stock = 4}
+    }
+}
 
-            } else if (lowerQuery.includes('ui') || lowerQuery.includes('nui') || lowerQuery.includes('interface')) {
-                response = `✅ **Modern UI Template Generated!**
+Config.Finance = {
+    enabled = true,
+    minDown = 10, -- minimum down payment %
+    maxMonths = 72,
+    interestRate = 3.5 -- annual %
+}`,
+                    'client/shop.lua': `local inShowroom = false
+local currentVehicles = {}
+local testDriveActive = false
+local testDriveVehicle = nil
+local testDriveTime = 0
 
-Created a stunning NUI interface with:
-- 🎨 Glass morphism design
-- ✨ Smooth animations
-- 📱 Fully responsive layout
-- 🌙 Dark/Light theme toggle
-- 🎯 Interactive components
-- ⚡ Optimized performance`;
+function OpenVehicleShop(shop)
+    inShowroom = true
+    SetNuiFocus(true, true)
+    
+    -- Load showroom vehicles
+    loadShowroomVehicles(shop)
+    
+    SendNUIMessage({
+        action = 'openShop',
+        shop = Config.Shops[shop],
+        vehicles = Config.Vehicles,
+        playerMoney = GetPlayerMoney()
+    })
+end
 
-                code = `<!-- Modern FiveM NUI -->
-<!DOCTYPE html>
+function loadShowroomVehicles(shop)
+    local shopConfig = Config.Shops[shop]
+    
+    -- Clear existing vehicles
+    for _, vehicle in pairs(currentVehicles) do
+        DeleteEntity(vehicle)
+    end
+    currentVehicles = {}
+    
+    -- Spawn showroom vehicles
+    for i, spot in ipairs(shopConfig.showroom) do
+        if i <= 4 then
+            local randomCategory = getRandomCategory()
+            local randomVehicle = Config.Vehicles[randomCategory][math.random(#Config.Vehicles[randomCategory])]
+            
+            RequestModel(randomVehicle.model)
+            while not HasModelLoaded(randomVehicle.model) do
+                Citizen.Wait(10)
+            end
+            
+            local vehicle = CreateVehicle(randomVehicle.model, spot.x, spot.y, spot.z, spot.w, false, false)
+            SetEntityAsMissionEntity(vehicle, true, true)
+            SetVehicleOnGroundProperly(vehicle)
+            SetVehicleDoorsLocked(vehicle, 2)
+            SetEntityInvincible(vehicle, true)
+            FreezeEntityPosition(vehicle, true)
+            
+            -- Set random color
+            local color1 = math.random(0, 160)
+            local color2 = math.random(0, 160)
+            SetVehicleColours(vehicle, color1, color2)
+            
+            table.insert(currentVehicles, vehicle)
+        end
+    end
+end
+
+function StartTestDrive(vehicle, shop)
+    if testDriveActive then
+        return Notify('Test drive already in progress', 'error')
+    end
+    
+    local shopConfig = Config.Shops[shop]
+    local spawn = shopConfig.testDrive.spawn
+    
+    -- Create test drive vehicle
+    RequestModel(vehicle.model)
+    while not HasModelLoaded(vehicle.model) do
+        Citizen.Wait(10)
+    end
+    
+    testDriveVehicle = CreateVehicle(vehicle.model, spawn.x, spawn.y, spawn.z, spawn.w, true, false)
+    SetPedIntoVehicle(PlayerPedId(), testDriveVehicle, -1)
+    SetVehicleNumberPlateText(testDriveVehicle, 'TEST')
+    
+    testDriveActive = true
+    testDriveTime = shopConfig.testDrive.duration
+    
+    -- Create route blips
+    for i, coords in ipairs(shopConfig.testDrive.route) do
+        local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
+        SetBlipRoute(blip, i == 1)
+        SetBlipColour(blip, 3)
+        SetBlipRouteColour(blip, 3)
+    end
+    
+    -- Start timer
+    Citizen.CreateThread(function()
+        while testDriveActive and testDriveTime > 0 do
+            Citizen.Wait(1000)
+            testDriveTime = testDriveTime - 1
+            
+            if testDriveTime <= 10 then
+                Notify('Test drive ending in ' .. testDriveTime .. ' seconds', 'warning')
+            end
+        end
+        
+        if testDriveActive then
+            EndTestDrive()
+        end
+    end)
+end
+
+function EndTestDrive()
+    if not testDriveActive then return end
+    
+    testDriveActive = false
+    
+    -- Delete vehicle
+    if DoesEntityExist(testDriveVehicle) then
+        DeleteEntity(testDriveVehicle)
+    end
+    
+    -- Remove blips
+    local blips = GetActiveBlips()
+    for _, blip in pairs(blips) do
+        RemoveBlip(blip)
+    end
+    
+    -- Teleport back to shop
+    SetEntityCoords(PlayerPedId(), -33.7, -1102.0, 26.4)
+    
+    Notify('Test drive ended', 'success')
+end
+
+RegisterNUICallback('purchaseVehicle', function(data, cb)
+    TriggerServerEvent('vehicleshop:purchase', data)
+    cb('ok')
+end)
+
+RegisterNUICallback('testDrive', function(data, cb)
+    StartTestDrive(data.vehicle, data.shop)
+    cb('ok')
+end)
+
+RegisterNUICallback('closeShop', function(data, cb)
+    SetNuiFocus(false, false)
+    inShowroom = false
+    
+    -- Clean up showroom vehicles
+    for _, vehicle in pairs(currentVehicles) do
+        DeleteEntity(vehicle)
+    end
+    currentVehicles = {}
+    
+    cb('ok')
+end)`
+                };
+            }
+
+            generateBankingSystem(analysis) {
+                return {
+                    'fxmanifest.lua': `fx_version 'cerulean'
+game 'gta5'
+
+author 'FiveM AI Generator'
+description 'Advanced Banking System with ATMs'
+version '2.0.0'
+
+shared_scripts {
+    '@${analysis.framework}/imports.lua',
+    'config.lua'
+}
+
+client_scripts {
+    'client/main.lua',
+    'client/atm.lua',
+    'client/bank.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/main.lua',
+    'server/transactions.lua',
+    'server/interest.lua'
+}
+
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/css/*.css',
+    'html/js/*.js',
+    'html/img/*.png'
+}`,
+                    'config.lua': `Config = {}
+
+Config.Banks = {
+    {name = 'Pacific Standard', coords = vector3(246.6, 223.5, 106.3)},
+    {name = 'Fleeca Bank', coords = vector3(149.5, -1040.6, 29.4)},
+    {name = 'Fleeca Bank', coords = vector3(-351.5, -49.5, 49.0)},
+    {name = 'Fleeca Bank', coords = vector3(313.5, -278.8, 54.2)},
+    {name = 'Fleeca Bank', coords = vector3(-1213.0, -330.8, 37.8)},
+    {name = 'Fleeca Bank', coords = vector3(-2962.5, 482.9, 15.7)},
+    {name = 'Fleeca Bank', coords = vector3(1175.0, 2706.8, 38.1)}
+}
+
+Config.ATMs = {
+    vector3(89.2, 2.4, 68.3),
+    vector3(1167.0, -456.1, 66.8),
+    vector3(-1827.2, 784.9, 138.3),
+    vector3(-386.7, 6046.0, 31.5),
+    vector3(-284.0, 6225.0, 31.2),
+    vector3(-133.0, 6366.5, 31.5),
+    vector3(155.8, 6642.8, 31.6),
+    vector3(174.2, 6637.9, 31.6),
+    vector3(1701.3, 6426.5, 32.8),
+    vector3(1735.2, 6410.5, 35.0),
+    vector3(1703.0, 4933.5, 42.1),
+    vector3(1968.1, 3743.5, 32.3),
+    vector3(1822.6, 3683.1, 34.3),
+    vector3(540.3, 2671.1, 42.2),
+    vector3(2564.5, 2585.0, 38.1),
+    vector3(2558.7, 351.0, 108.6),
+    vector3(2558.5, 389.5, 108.6),
+    vector3(1077.7, -776.5, 58.2),
+    vector3(1139.0, -469.0, 66.7),
+    vector3(1168.9, -457.2, 66.5),
+    vector3(1153.7, -326.8, 69.2),
+    vector3(381.8, 323.4, 103.6),
+    vector3(285.5, 143.4, 104.2),
+    vector3(157.9, 234.2, 106.6),
+    vector3(-164.6, 232.7, 94.9),
+    vector3(-1827.3, 785.0, 138.3),
+    vector3(-1409.8, -100.4, 52.4),
+    vector3(-1205.8, -325.0, 37.9),
+    vector3(-2072.4, -317.3, 13.3)
+}
+
+Config.Interest = {
+    enabled = true,
+    rate = 0.001, -- 0.1% daily
+    minBalance = 5000, -- Minimum balance to earn interest
+    maxBalance = 10000000, -- Maximum balance for interest calculation
+    payoutTime = 24 -- Hours between interest payouts
+}
+
+Config.Transactions = {
+    minTransfer = 1,
+    maxTransfer = 10000000,
+    transferFee = 0, -- Flat fee for transfers
+    transferFeePercent = 0, -- Percentage fee for transfers (0.5 = 0.5%)
+    dailyLimit = 5000000, -- Daily withdrawal limit
+    requirePin = true,
+    pinLength = 4
+}
+
+Config.Loans = {
+    enabled = true,
+    minAmount = 1000,
+    maxAmount = 500000,
+    interestRate = 5, -- Annual percentage
+    maxTermMonths = 60,
+    requireCollateral = true,
+    minCreditScore = 600
+}`
+                };
+            }
+
+            generateCustomScript(analysis) {
+                const base = {
+                    'fxmanifest.lua': `fx_version 'cerulean'
+game 'gta5'
+
+author 'FiveM AI Generator'
+description 'Custom FiveM Script'
+version '1.0.0'
+
+shared_scripts {
+    'config.lua'
+}
+
+client_scripts {
+    'client/main.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/main.lua'
+}`,
+                    'config.lua': `Config = {}
+
+-- Generated configuration based on your requirements
+Config.Debug = false
+Config.UseTarget = false -- Set to true for qb-target/ox_target support`,
+                    'client/main.lua': `-- Client-side script
+local initialized = false
+
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
+        
+        if not initialized then
+            Initialize()
+            initialized = true
+        end
+        
+        -- Main client logic here
+    end
+end)
+
+function Initialize()
+    -- Initialization logic
+    print('[Custom Script] Initialized successfully')
+end`,
+                    'server/main.lua': `-- Server-side script
+print('[Custom Script] Server initialized')
+
+RegisterNetEvent('custom:server:action')
+AddEventHandler('custom:server:action', function(data)
+    local src = source
+    -- Handle server action
+end)`
+                };
+                
+                return base;
+            }
+            
+            generateInventorySystem(analysis) {
+                return {
+                    'fxmanifest.lua': `fx_version 'cerulean'
+game 'gta5'
+
+author 'FiveM AI Generator'
+description 'Advanced Inventory System'
+version '2.0.0'
+
+shared_scripts {
+    'config.lua',
+    'shared/*.lua'
+}
+
+client_scripts {
+    'client/main.lua',
+    'client/drop.lua',
+    'client/hotbar.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/main.lua',
+    'server/items.lua',
+    'server/drops.lua'
+}
+
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/css/*.css',
+    'html/js/*.js',
+    'html/img/items/*.png'
+}`,
+                    'config.lua': `Config = {}
+
+Config.MaxWeight = 30000 -- grams
+Config.MaxSlots = 40
+Config.DropModel = 'prop_cs_package_01'
+Config.DropDespawnTime = 1800 -- seconds
+
+Config.Items = {
+    ['water'] = {
+        name = 'water',
+        label = 'Water Bottle',
+        weight = 500,
+        type = 'item',
+        image = 'water.png',
+        unique = false,
+        useable = true,
+        shouldClose = true,
+        description = 'A refreshing bottle of water'
+    },
+    ['phone'] = {
+        name = 'phone',
+        label = 'Mobile Phone',
+        weight = 300,
+        type = 'item',
+        image = 'phone.png',
+        unique = true,
+        useable = true,
+        shouldClose = false,
+        description = 'Stay connected'
+    },
+    ['weapon_pistol'] = {
+        name = 'weapon_pistol',
+        label = 'Pistol',
+        weight = 1200,
+        type = 'weapon',
+        image = 'weapon_pistol.png',
+        unique = true,
+        useable = false,
+        shouldClose = true,
+        description = '9mm Pistol'
+    }
+}`
+                };
+            }
+            
+            generateHousingSystem(analysis) {
+                return {
+                    'fxmanifest.lua': `fx_version 'cerulean'
+game 'gta5'
+
+author 'FiveM AI Generator'
+description 'Advanced Housing System'
+version '2.0.0'
+
+shared_scripts {
+    '@${analysis.framework}/imports.lua',
+    'config.lua'
+}
+
+client_scripts {
+    'client/main.lua',
+    'client/interior.lua',
+    'client/furniture.lua',
+    'client/garage.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/main.lua',
+    'server/houses.lua',
+    'server/furniture.lua'
+}
+
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/css/*.css',
+    'html/js/*.js'
+}`,
+                    'config.lua': `Config = {}
+
+Config.Houses = {
+    ['apartment1'] = {
+        label = 'South Rockford Apartment',
+        price = 125000,
+        coords = vector3(-667.372, -1106.034, 14.629),
+        garage = vector3(-659.9, -1095.5, 14.6),
+        interior = 'modern_apartment_1',
+        maxFurniture = 50
+    },
+    ['house1'] = {
+        label = 'Vinewood Hills Mansion',
+        price = 1850000,
+        coords = vector3(-1289.7, 449.8, 97.9),
+        garage = vector3(-1292.5, 456.3, 97.0),
+        interior = 'luxury_mansion',
+        maxFurniture = 150
+    }
+}
+
+Config.Interiors = {
+    ['modern_apartment_1'] = {
+        exit = vector3(266.0, -1007.0, -101.0),
+        stash = vector3(265.0, -999.3, -99.0),
+        wardrobe = vector3(259.8, -1003.8, -99.0),
+        furniture_zones = {
+            {coords = vector3(262.0, -1002.0, -99.0), radius = 10.0}
+        }
+    }
+}`
+                };
+            }
+            
+            generateHUDSystem(analysis) {
+                return {
+                    'fxmanifest.lua': `fx_version 'cerulean'
+game 'gta5'
+
+author 'FiveM AI Generator'
+description 'Modern HUD System'
+version '2.0.0'
+
+client_scripts {
+    'client/main.lua'
+}
+
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/css/*.css',
+    'html/js/*.js',
+    'html/fonts/*.ttf'
+}`,
+                    'html/index.html': `<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
         
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            background: transparent;
+        }
+        
+        #hud {
+            position: fixed;
+            bottom: 20px;
+            left: 320px;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            gap: 10px;
         }
         
-        .container {
-            background: rgba(255, 255, 255, 0.1);
+        .status-bar {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideIn 0.5s ease;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
         
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .status-icon {
+            font-size: 24px;
+            z-index: 2;
+        }
+        
+        .status-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(0deg, var(--color) 0%, transparent 100%);
+            border-radius: 8px;
+            transition: height 0.3s ease;
+        }
+        
+        #health .status-fill { --color: #ff4757; }
+        #armor .status-fill { --color: #3742fa; }
+        #hunger .status-fill { --color: #ff6348; }
+        #thirst .status-fill { --color: #00d2d3; }
+        
+        #speedometer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 250px;
+            height: 250px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(15px);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .speed-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .speed-unit {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .gear {
+            margin-top: 10px;
+            font-size: 24px;
+            color: #00d2d3;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .status-bar.warning {
+            animation: pulse 1s infinite;
+            border-color: #ff6348;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Your UI Content -->
+    <div id="hud">
+        <div class="status-bar" id="health">
+            <span class="status-icon">❤️</span>
+            <div class="status-fill"></div>
+        </div>
+        <div class="status-bar" id="armor">
+            <span class="status-icon">🛡️</span>
+            <div class="status-fill"></div>
+        </div>
+        <div class="status-bar" id="hunger">
+            <span class="status-icon">🍔</span>
+            <div class="status-fill"></div>
+        </div>
+        <div class="status-bar" id="thirst">
+            <span class="status-icon">💧</span>
+            <div class="status-fill"></div>
+        </div>
     </div>
-</body>
-</html>`;
-
-            } else {
-                response = `🎯 **I understand your request!**
-
-To generate the perfect FiveM script for you, I can create:
-
-1. **Framework Scripts** (ESX/QBCore/Standalone)
-2. **UI Systems** (HUD, Menus, Notifications)
-3. **Game Systems** (Jobs, Inventory, Housing)
-4. **Admin Tools** (Moderation, Logs, Commands)
-5. **Custom Features** (Based on your exact needs)
-
-Just describe what you need in detail, and I'll generate it instantly with:
-- Complete client/server code
-- Modern NUI interface
-- Configuration files
-- Database structure
-- Installation guide
-
-You can also upload an image of any UI design, and I'll recreate it perfectly!`;
+    
+    <div id="speedometer">
+        <div class="speed-value">0</div>
+        <div class="speed-unit">KM/H</div>
+        <div class="gear">N</div>
+    </div>
+    
+    <script>
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            
+            if (data.action === 'updateStatus') {
+                updateStatus(data.status, data.value);
+            } else if (data.action === 'updateSpeed') {
+                updateSpeedometer(data.speed, data.gear);
+            } else if (data.action === 'showSpeedometer') {
+                document.getElementById('speedometer').style.display = data.show ? 'flex' : 'none';
             }
-            
-            addMessage('ai', response);
-            
-            if (code) {
-                addCodePreview('lua', code);
-                addActionButtons();
-            }
-        }
+        });
         
-        function addCodePreview(language, code) {
-            const chatArea = document.getElementById('chatArea');
-            
-            const previewDiv = document.createElement('div');
-            previewDiv.className = 'code-preview';
-            
-            previewDiv.innerHTML = `
-                <div class="code-header">
-                    <div class="code-title">
-                        <span>📄</span>
-                        <span>${language === 'lua' ? 'script.lua' : 'ui.html'}</span>
-                    </div>
-                    <div class="code-actions">
-                        <button class="code-action-btn" onclick="copyCode()">📋 Copy</button>
-                        <button class="code-action-btn" onclick="expandCode()">⛶ Expand</button>
-                    </div>
-                </div>
-                <div class="code-body">
-                    <pre><code>${escapeHtml(code)}</code></pre>
-                </div>
-            `;
-            
-            chatArea.appendChild(previewDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-        
-        function addActionButtons() {
-            const chatArea = document.getElementById('chatArea');
-            
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'action-buttons';
-            
-            actionsDiv.innerHTML = `
-                <button class="action-btn download" onclick="downloadScript()">
-                    📦 Download ZIP
-                </button>
-                <button class="action-btn" onclick="checkErrors()">
-                    🔍 Check Errors
-                </button>
-                <button class="action-btn" onclick="optimizeCode()">
-                    ⚡ Optimize
-                </button>
-                <button class="action-btn" onclick="addFeature()">
-                    ➕ Add Feature
-                </button>
-                <button class="action-btn" onclick="searchDocs()">
-                    📚 Search Docs
-                </button>
-            `;
-            
-            chatArea.appendChild(actionsDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-        
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
-        
-        function copyCode() {
-            // In real implementation, copy to clipboard
-            showNotification('Code copied to clipboard!');
-        }
-        
-        function expandCode() {
-            // In real implementation, show full code in modal
-            showNotification('Opening full code view...');
-        }
-        
-        function downloadScript() {
-            showNotification('Generating ZIP file with complete script package...');
-            setTimeout(() => {
-                showNotification('✅ Download started: vehicle_shop_v1.zip');
-            }, 1500);
-        }
-        
-        function checkErrors() {
-            showNotification('🔍 Analyzing code for errors...');
-            setTimeout(() => {
-                showNotification('✅ No errors found! Code is ready for production.');
-            }, 1000);
-        }
-        
-        function optimizeCode() {
-            showNotification('⚡ Optimizing performance...');
-            setTimeout(() => {
-                showNotification('✅ Code optimized! 23% performance improvement achieved.');
-            }, 1200);
-        }
-        
-        function addFeature() {
-            const feature = prompt('What feature would you like to add?');
-            if (feature) {
-                showNotification(`Adding feature: ${feature}...`);
-                setTimeout(() => {
-                    addMessage('ai', `✅ Feature "${feature}" has been integrated into your script!`);
-                }, 1500);
-            }
-        }
-        
-        function searchDocs() {
-            showNotification('🔍 Searching FiveM documentation and GitHub...');
-            setTimeout(() => {
-                addMessage('ai', `📚 **Relevant Documentation Found:**
+        function updateStatus(status, value) {
+            const element = document.getElementById(status);
+            if (element) {
+                const fill = element.querySelector('.status-fill');
+                fill.style.height = value + '%';
                 
-• [FiveM Native Reference](https://docs.fivem.net/natives/)
-• [ESX Documentation](https://esx-framework.org/)
-• [QBCore Docs](https://docs.qbcore.org/)
-• Similar scripts on GitHub with 500+ stars`);
-            }, 1000);
-        }
-        
-        function showNotification(message) {
-            // In real implementation, show toast notification
-            console.log(message);
-            
-            // Simple notification display
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: var(--accent);
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                animation: slideIn 0.3s ease;
-                z-index: 10000;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-        
-        function newChat() {
-            messages = [];
-            document.getElementById('chatArea').innerHTML = '';
-            const welcomeScreen = document.getElementById('welcomeScreen');
-            if (welcomeScreen) {
-                welcomeScreen.style.display = 'flex';
+                if (value < 20) {
+                    element.classList.add('warning');
+                } else {
+                    element.classList.remove('warning');
+                }
             }
-            showNotification('New project started!');
         }
         
-        function quickStart(type) {
-            let query = '';
-            
-            switch(type) {
-                case 'esx':
-                    query = 'Create an ESX job system with boss menu, employee management, and salary system';
-                    break;
-                case 'qbcore':
-                    query = 'Generate a QBCore gang system with territories, wars, and drug dealing';
-                    break;
-                case 'ui':
-                    query = 'Design a modern HUD with speedometer, health, armor, and minimap';
-                    break;
-                case 'standalone':
-                    query = 'Create a racing system with checkpoints, leaderboards, and betting';
-                    break;
-            }
-            
-            document.getElementById('messageInput').value = query;
-            sendMessage();
+        function updateSpeedometer(speed, gear) {
+            document.querySelector('.speed-value').textContent = Math.floor(speed);
+            document.querySelector('.gear').textContent = gear;
         }
-        
-        // Mobile menu toggle
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
-        
-        // Initialize
-        console.log('FiveM AI Assistant initialized successfully!');
     </script>
 </body>
-</html>
+</html>`
+                };
+            }
+            
+            generateAdminSystem(analysis) {
+                return {
+                    'fxmanifest.lua': `fx_version 'cerulean'
+game 'gta5'
+
+author 'FiveM AI Generator'
+description 'Advanced Admin System'
+version '2.0.0'
+
+shared_scripts {
+    'config.lua'
+}
+
+client_scripts {
+    'client/main.lua',
+    'client/spectate.lua',
+    'client/noclip.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/main.lua',
+    'server/commands.lua',
+    'server/logs.lua',
+    'server/bans.lua'
+}`,
+                    'config.lua': `Config = {}
+
+Config.Permissions = {
+    ['owner'] = {
+        level = 100,
+        commands = {'*'}, -- All commands
+        color = '^1' -- Red
+    },
+    ['admin'] = {
+        level = 80,
+        commands = {'kick', 'ban', 'unban', 'tp', 'bring', 'freeze', 'spectate', 'noclip'},
+        color = '^3' -- Yellow
+    },
+    ['moderator'] = {
+        level = 50,
+        commands = {'kick', 'tp', 'bring', 'freeze', 'spectate'},
+        color = '^4' -- Blue
+    }
+}
+
+Config.WebhookURL = '' -- Discord webhook for logs
+Config.LogActions = true
+Config.SaveToDatabase = true`
+                };
+            }
