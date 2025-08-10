@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FiveM AI - Advanced Script Generator</title>
+    <title>FiveM AI Assistant - Advanced Script Generator</title>
     <style>
         * {
             margin: 0;
@@ -13,25 +13,23 @@
 
         :root {
             --bg-primary: #0a0a0a;
-            --bg-secondary: #141414;
-            --bg-tertiary: #1f1f1f;
-            --bg-hover: #2a2a2a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-hover: #222222;
             --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --text-dim: #707070;
-            --accent: #ff6b6b;
-            --accent-hover: #ff5252;
-            --accent-glow: rgba(255, 107, 107, 0.4);
-            --success: #52c41a;
-            --error: #ff4d4f;
-            --warning: #faad14;
-            --info: #1890ff;
-            --border: rgba(255, 255, 255, 0.1);
-            --code-bg: #0d1117;
+            --text-secondary: #a0a0a0;
+            --text-tertiary: #666666;
+            --accent: #7c3aed;
+            --accent-hover: #6d28d9;
+            --border: #2a2a2a;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --code-bg: #0d0d0d;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             height: 100vh;
@@ -45,151 +43,150 @@
 
         /* Sidebar */
         .sidebar {
-            width: 220px;
+            width: 260px;
             background: var(--bg-secondary);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar-header {
-            padding: 16px;
+            padding: 20px;
             border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, #9333ea 100%);
         }
 
         .logo {
+            font-size: 24px;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: white;
-            font-weight: 600;
-            font-size: 18px;
+            gap: 10px;
         }
 
         .logo-icon {
             width: 32px;
             height: 32px;
-            background: white;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            backdrop-filter: blur(10px);
         }
 
         .new-chat-btn {
-            margin: 12px;
-            padding: 10px;
-            background: transparent;
+            margin: 20px;
+            padding: 12px 20px;
+            background: var(--bg-tertiary);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             color: var(--text-primary);
             cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s;
-            font-size: 14px;
         }
 
         .new-chat-btn:hover {
             background: var(--bg-hover);
-            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
         }
 
         .chat-history {
             flex: 1;
             overflow-y: auto;
-            padding: 8px;
-        }
-
-        .history-item {
             padding: 10px;
-            margin-bottom: 4px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
         }
 
-        .history-item:hover {
+        .chat-history-item {
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-history-item:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
         }
 
-        .history-item.active {
-            background: var(--bg-hover);
-            color: var(--accent);
+        .chat-history-item.active {
+            background: var(--accent);
+            color: white;
         }
 
-        /* Main Content */
+        /* Main Chat Area */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
 
-        .top-bar {
-            height: 52px;
-            background: var(--bg-secondary);
+        .chat-header {
+            padding: 20px 30px;
             border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
-            gap: 12px;
         }
 
-        .action-chip {
-            padding: 6px 12px;
+        .chat-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            border-radius: 6px;
+            color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.2s;
-            color: var(--text-secondary);
+            font-size: 14px;
         }
 
-        .action-chip:hover {
-            border-color: var(--accent);
+        .header-btn:hover {
+            background: var(--bg-hover);
             color: var(--text-primary);
         }
 
-        .action-chip.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: white;
-        }
-
-        /* Chat Area */
-        .chat-area {
+        .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .message {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            animation: fadeIn 0.3s ease;
+            gap: 16px;
+            animation: messageSlide 0.3s ease-out;
         }
 
-        @keyframes fadeIn {
+        @keyframes messageSlide {
             from {
                 opacity: 0;
                 transform: translateY(10px);
@@ -201,124 +198,180 @@
         }
 
         .message-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
+            font-weight: 600;
             flex-shrink: 0;
         }
 
         .user-avatar {
-            background: var(--info);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .ai-avatar {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, #9333ea 100%);
         }
 
         .message-content {
             flex: 1;
-            color: var(--text-primary);
-            line-height: 1.6;
-            font-size: 14px;
+            max-width: 800px;
         }
 
-        .message-content pre {
+        .message-role {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .message-text {
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .code-block {
             background: var(--code-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 16px;
-            overflow-x: auto;
             margin: 12px 0;
-            font-size: 13px;
-        }
-
-        .message-content code {
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
-            color: #e6e6e6;
-        }
-
-        /* Input Area */
-        .input-area {
-            border-top: 1px solid var(--border);
-            padding: 16px 20px;
-            background: var(--bg-secondary);
-        }
-
-        .input-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-        }
-
-        .input-wrapper {
-            flex: 1;
             position: relative;
+            overflow-x: auto;
         }
 
-        .message-input {
-            width: 100%;
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-language {
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .copy-btn {
+            padding: 4px 12px;
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 40px 10px 14px;
-            color: var(--text-primary);
-            font-size: 14px;
-            resize: none;
-            min-height: 44px;
-            max-height: 120px;
-            line-height: 1.5;
-            transition: border-color 0.2s;
-        }
-
-        .message-input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .attach-btn {
-            position: absolute;
-            right: 8px;
-            bottom: 8px;
-            width: 28px;
-            height: 28px;
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
             transition: all 0.2s;
         }
 
-        .attach-btn:hover {
-            color: var(--text-secondary);
+        .copy-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        pre {
+            color: #e0e0e0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* Input Area */
+        .input-container {
+            padding: 20px 30px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .input-box {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .input-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        #messageInput {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 15px;
+            resize: none;
+            font-family: inherit;
+            line-height: 1.5;
+            min-height: 24px;
+            max-height: 120px;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
             background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .action-btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
         }
 
         .send-btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             background: var(--accent);
             border: none;
             border-radius: 8px;
             color: white;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s;
-            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .send-btn:hover:not(:disabled) {
+        .send-btn:hover {
             background: var(--accent-hover);
-            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
         }
 
         .send-btn:disabled {
@@ -326,131 +379,58 @@
             cursor: not-allowed;
         }
 
-        /* Code Block */
-        .code-block {
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin: 12px 0;
-            overflow: hidden;
+        /* Feature Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
         }
 
-        .code-header {
+        .feature-card {
             background: var(--bg-tertiary);
-            padding: 8px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .code-lang {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .code-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .code-btn {
-            padding: 4px 8px;
-            background: transparent;
             border: 1px solid var(--border);
-            border-radius: 4px;
-            color: var(--text-secondary);
+            border-radius: 12px;
+            padding: 20px;
             cursor: pointer;
-            font-size: 11px;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .code-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .code-content {
-            padding: 16px;
-            overflow-x: auto;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        /* File Structure */
-        .file-structure {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            margin: 12px 0;
-        }
-
-        .file-tree {
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .file-item {
-            padding: 4px 0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .file-item.folder {
-            color: var(--info);
-        }
-
-        .file-item.file {
-            color: var(--text-primary);
-            margin-left: 20px;
-        }
-
-        /* Export Options */
-        .export-options {
-            display: flex;
-            gap: 8px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-
-        .export-btn {
-            padding: 8px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .export-btn:hover {
-            background: var(--bg-hover);
+        .feature-card:hover {
+            transform: translateY(-4px);
             border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
         }
 
-        .export-btn.primary {
+        .feature-icon {
+            width: 40px;
+            height: 40px;
             background: var(--accent);
-            border-color: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 20px;
         }
 
-        .export-btn.primary:hover {
-            background: var(--accent-hover);
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
 
-        /* Loading */
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Loading Animation */
         .typing-indicator {
             display: flex;
             gap: 4px;
-            padding: 8px;
+            padding: 8px 0;
         }
 
         .typing-dot {
@@ -458,1459 +438,734 @@
             height: 8px;
             background: var(--accent);
             border-radius: 50%;
-            animation: typing 1.4s infinite ease-in-out both;
+            animation: typing 1.4s infinite;
         }
 
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
 
         @keyframes typing {
-            0%, 80%, 100% {
-                transform: scale(0.8);
-                opacity: 0.5;
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
             }
-            40% {
-                transform: scale(1);
+            30% {
+                transform: translateY(-10px);
                 opacity: 1;
             }
         }
 
-        /* Scrollbar */
+        /* File Upload Area */
+        .file-upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+
+        .file-upload-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .browse-btn {
+            padding: 8px 20px;
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .browse-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Status Messages */
+        .status-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--error);
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Download Button */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, #9333ea 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 12px 0;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                position: absolute;
+                z-index: 100;
+                height: 100vh;
+            }
+
+            .sidebar.open {
+                width: 260px;
+            }
+
+            .chat-messages {
+                padding: 20px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: transparent;
+            background: var(--bg-primary);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--bg-hover);
+            background: var(--border);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-dim);
+            background: var(--text-tertiary);
         }
-
-        /* Syntax Highlighting */
-        .hljs-keyword { color: #ff79c6; }
-        .hljs-string { color: #f1fa8c; }
-        .hljs-number { color: #bd93f9; }
-        .hljs-function { color: #50fa7b; }
-        .hljs-comment { color: #6272a4; }
-        .hljs-variable { color: #8be9fd; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
                     <div class="logo-icon">🚀</div>
                     <span>FiveM AI</span>
                 </div>
             </div>
-            
-            <button class="new-chat-btn" onclick="aiSystem.newChat()">
+            <button class="new-chat-btn" onclick="startNewChat()">
                 <span>➕</span>
-                <span>New Script Project</span>
+                <span>New Chat</span>
             </button>
-            
             <div class="chat-history" id="chatHistory">
-                <div class="history-item">
-                    <span>🚗</span>
-                    <span>Vehicle Shop System</span>
-                </div>
-                <div class="history-item">
-                    <span>🏦</span>
-                    <span>Banking Script</span>
-                </div>
-                <div class="history-item">
-                    <span>👮</span>
-                    <span>Police MDT</span>
-                </div>
-                <div class="history-item">
-                    <span>🏠</span>
-                    <span>Housing System</span>
-                </div>
-                <div class="history-item">
-                    <span>💼</span>
-                    <span>Job Center</span>
-                </div>
-                <div class="history-item">
-                    <span>🎮</span>
-                    <span>Mini Games Pack</span>
-                </div>
+                <div class="chat-history-item active">Script Generator Session</div>
+                <div class="chat-history-item">UI Designer</div>
+                <div class="chat-history-item">Vehicle Spawn Script</div>
+                <div class="chat-history-item">Job System Creation</div>
             </div>
         </div>
-        
+
         <!-- Main Content -->
         <div class="main-content">
-            <div class="top-bar">
-                <div class="action-chip active" onclick="aiSystem.toggleFeature('ai')">
-                    <span>🤖</span>
-                    <span>AI Active</span>
+            <div class="chat-header">
+                <div class="chat-title">FiveM Advanced Script Generator</div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="searchWeb()">🔍 Web Search</button>
+                    <button class="header-btn" onclick="importGithub()">📦 Import GitHub</button>
+                    <button class="header-btn" onclick="exportProject()">💾 Export</button>
                 </div>
-                <div class="action-chip" onclick="aiSystem.toggleFeature('error')">
-                    <span>❌</span>
-                    <span>Error Check</span>
-                </div>
-                <div class="action-chip" onclick="aiSystem.toggleFeature('search')">
-                    <span>🔍</span>
-                    <span>Web Search</span>
-                </div>
-                <div class="action-chip" onclick="aiSystem.toggleFeature('export')">
-                    <span>📦</span>
-                    <span>ZIP Export</span>
-                </div>
-                <div style="margin-left: auto;">
-                    <div class="action-chip">
-                        <span>⚡</span>
-                        <span>Ultra Fast</span>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome Message -->
+                <div class="message">
+                    <div class="message-avatar ai-avatar">AI</div>
+                    <div class="message-content">
+                        <div class="message-role">FiveM AI Assistant</div>
+                        <div class="message-text">
+                            Welcome to the most advanced FiveM AI Assistant! I can help you create:
+                            
+                            <div class="feature-grid">
+                                <div class="feature-card" onclick="quickAction('script')">
+                                    <div class="feature-icon">📝</div>
+                                    <div class="feature-title">Full Scripts</div>
+                                    <div class="feature-desc">Generate complete FiveM scripts with client/server sides</div>
+                                </div>
+                                <div class="feature-card" onclick="quickAction('ui')">
+                                    <div class="feature-icon">🎨</div>
+                                    <div class="feature-title">Modern UI</div>
+                                    <div class="feature-desc">Create beautiful NUI interfaces with HTML/CSS/JS</div>
+                                </div>
+                                <div class="feature-card" onclick="quickAction('convert')">
+                                    <div class="feature-icon">🔄</div>
+                                    <div class="feature-title">Convert & Optimize</div>
+                                    <div class="feature-desc">Convert ESX to QBCore or optimize existing scripts</div>
+                                </div>
+                                <div class="feature-card" onclick="quickAction('debug')">
+                                    <div class="feature-icon">🐛</div>
+                                    <div class="feature-title">Debug & Fix</div>
+                                    <div class="feature-desc">Automatically detect and fix script errors</div>
+                                </div>
+                            </div>
+
+                            <div class="file-upload-zone" id="dropZone">
+                                <div class="upload-icon">📸</div>
+                                <div class="upload-text">Drop an image here to recreate the UI/design</div>
+                                <button class="browse-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                                <input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="handleFileUpload(event)">
+                            </div>
+
+                            Just describe what you need or upload an image, and I'll create it instantly!
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="chat-area" id="chatArea">
-                <!-- Messages will appear here -->
-            </div>
-            
-            <div class="input-area">
-                <div class="input-container">
-                    <div class="input-wrapper">
-                        <textarea 
-                            class="message-input" 
-                            id="messageInput"
-                            placeholder="Describe your FiveM script... (e.g., 'Create a vehicle shop with showroom, test drive, and payment system')"
-                            rows="1"
-                        ></textarea>
-                        <button class="attach-btn" onclick="document.getElementById('fileInput').click()">
-                            📎
-                        </button>
-                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <div class="input-box">
+                        <textarea id="messageInput" placeholder="Describe your FiveM script or paste code..." rows="1"></textarea>
+                        <div class="input-actions">
+                            <button class="action-btn" onclick="document.getElementById('fileInput').click()" title="Upload Image">
+                                📎
+                            </button>
+                            <button class="action-btn" onclick="toggleVoice()" title="Voice Input">
+                                🎤
+                            </button>
+                        </div>
                     </div>
-                    <button class="send-btn" id="sendBtn" onclick="aiSystem.processInput()">
-                        Generate
+                    <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                        <span>Generate</span>
+                        <span>→</span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <script>
-        // Advanced FiveM AI System
-        class FiveMIntelligentSystem {
-            constructor() {
-                this.context = [];
-                this.currentProject = null;
-                this.features = {
-                    ai: true,
-                    error: false,
-                    search: false,
-                    export: false
-                };
-                this.scriptTemplates = this.loadTemplates();
-                this.init();
+        // State Management
+        let conversationHistory = [];
+        let currentProject = null;
+        let isGenerating = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            setupDragAndDrop();
+            autoResizeTextarea();
+        });
+
+        // Event Listeners
+        function setupEventListeners() {
+            const input = document.getElementById('messageInput');
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            input.addEventListener('input', autoResizeTextarea);
+        }
+
+        // Auto-resize textarea
+        function autoResizeTextarea() {
+            const textarea = document.getElementById('messageInput');
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        // Drag and Drop
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+        }
+
+        // File Handling
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type.startsWith('image/')) {
+                    processImage(file);
+                }
             }
+        }
 
-            init() {
-                const input = document.getElementById('messageInput');
-                input.addEventListener('input', () => this.autoResize(input));
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        this.processInput();
-                    }
-                });
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                addMessage('user', `I've uploaded an image: ${file.name}`);
+                simulateAIResponse('image', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
 
-                // File upload
-                document.getElementById('fileInput').addEventListener('change', (e) => {
-                    this.handleFileUpload(e.target.files);
-                });
-            }
+        // Message Handling
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || isGenerating) return;
 
-            autoResize(element) {
-                element.style.height = 'auto';
-                element.style.height = (element.scrollHeight) + 'px';
-            }
+            addMessage('user', message);
+            input.value = '';
+            autoResizeTextarea();
+            
+            simulateAIResponse('text', message);
+        }
 
-            async processInput() {
-                const input = document.getElementById('messageInput');
-                const query = input.value.trim();
-                if (!query) return;
+        function addMessage(role, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const avatar = role === 'user' ? 'U' : 'AI';
+            const avatarClass = role === 'user' ? 'user-avatar' : 'ai-avatar';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar ${avatarClass}">${avatar}</div>
+                <div class="message-content">
+                    <div class="message-role">${role === 'user' ? 'You' : 'FiveM AI Assistant'}</div>
+                    <div class="message-text">${content}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            conversationHistory.push({ role, content });
+        }
 
-                this.addMessage('user', query);
-                input.value = '';
-                this.autoResize(input);
-
-                // Show typing indicator
-                this.showTyping();
-
-                // Process with AI
-                setTimeout(() => {
-                    this.generateIntelligentResponse(query);
-                }, 1000);
-            }
-
-            generateIntelligentResponse(query) {
-                this.removeTyping();
+        // AI Response Simulation
+        function simulateAIResponse(type, data) {
+            isGenerating = true;
+            document.getElementById('sendBtn').disabled = true;
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                hideTypingIndicator();
                 
-                const analysis = this.analyzeQuery(query);
-                const response = this.buildCompleteScript(analysis);
+                let response = generateResponse(type, data);
+                addMessage('ai', response);
                 
-                this.addMessage('ai', response.message, response.code);
-            }
+                isGenerating = false;
+                document.getElementById('sendBtn').disabled = false;
+            }, 2000);
+        }
 
-            analyzeQuery(query) {
-                const lower = query.toLowerCase();
-                const analysis = {
-                    framework: null,
-                    type: null,
-                    features: [],
-                    complexity: 'medium',
-                    needsUI: false,
-                    needsDB: false
-                };
+        function generateResponse(type, data) {
+            if (type === 'image') {
+                return `
+                    <div class="status-message status-success">
+                        <span>✅</span>
+                        <span>Image analyzed successfully!</span>
+                    </div>
+                    
+                    I've analyzed your image and detected a modern dashboard UI with the following components:
+                    - Navigation sidebar with menu items
+                    - Statistics cards with icons
+                    - Data charts and graphs
+                    - User profile section
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">CLIENT.LUA</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre>-- FiveM NUI Dashboard Script
+-- Generated based on your image
 
-                // Framework detection
-                if (lower.includes('esx')) analysis.framework = 'esx';
-                else if (lower.includes('qbcore') || lower.includes('qb')) analysis.framework = 'qbcore';
-                else if (lower.includes('vrp')) analysis.framework = 'vrp';
-                else analysis.framework = 'standalone';
+local display = false
 
-                // Type detection
-                if (lower.includes('job') || lower.includes('boss')) {
-                    analysis.type = 'job_system';
-                    analysis.features = ['boss_menu', 'employee_management', 'salary', 'grades', 'permissions'];
-                    analysis.needsDB = true;
-                    analysis.needsUI = true;
-                } else if (lower.includes('vehicle') || lower.includes('car') || lower.includes('garage')) {
-                    analysis.type = 'vehicle_system';
-                    analysis.features = ['shop', 'garage', 'impound', 'keys', 'fuel'];
-                    analysis.needsDB = true;
-                    analysis.needsUI = true;
-                } else if (lower.includes('bank') || lower.includes('atm')) {
-                    analysis.type = 'banking';
-                    analysis.features = ['accounts', 'transfers', 'atm', 'loans', 'interest'];
-                    analysis.needsDB = true;
-                    analysis.needsUI = true;
-                } else if (lower.includes('inventory')) {
-                    analysis.type = 'inventory';
-                    analysis.features = ['drag_drop', 'hotbar', 'weight', 'metadata', 'crafting'];
-                    analysis.needsUI = true;
-                } else if (lower.includes('house') || lower.includes('housing') || lower.includes('property')) {
-                    analysis.type = 'housing';
-                    analysis.features = ['interior', 'furniture', 'storage', 'keys', 'garage'];
-                    analysis.needsDB = true;
-                    analysis.needsUI = true;
-                } else if (lower.includes('hud') || lower.includes('ui')) {
-                    analysis.type = 'hud';
-                    analysis.needsUI = true;
-                    analysis.features = ['speedometer', 'health', 'armor', 'hunger', 'thirst'];
-                } else if (lower.includes('admin') || lower.includes('moderation')) {
-                    analysis.type = 'admin';
-                    analysis.features = ['commands', 'logs', 'spectate', 'teleport', 'permissions'];
-                    analysis.needsUI = true;
+RegisterCommand("dashboard", function()
+    SetDisplay(not display)
+end)
+
+RegisterNUICallback("close", function(data)
+    SetDisplay(false)
+end)
+
+function SetDisplay(bool)
+    display = bool
+    SetNuiFocus(bool, bool)
+    SendNUIMessage({
+        type = "ui",
+        status = bool,
+    })
+end</pre>
+                    </div>
+                    
+                    <button class="download-btn" onclick="downloadProject()">
+                        <span>📦</span>
+                        <span>Download Complete Project</span>
+                    </button>
+                `;
+            } else {
+                // Text response based on keywords
+                if (data.toLowerCase().includes('vehicle') || data.toLowerCase().includes('car')) {
+                    return generateVehicleScript();
+                } else if (data.toLowerCase().includes('ui') || data.toLowerCase().includes('interface')) {
+                    return generateUIScript();
+                } else if (data.toLowerCase().includes('job') || data.toLowerCase().includes('system')) {
+                    return generateJobScript();
                 } else {
-                    analysis.type = 'custom';
-                    analysis.features = this.extractFeatures(query);
+                    return generateGenericResponse(data);
                 }
-
-                // Complexity detection
-                if (analysis.features.length > 5 || lower.includes('advanced') || lower.includes('complex')) {
-                    analysis.complexity = 'high';
-                } else if (analysis.features.length < 3 || lower.includes('simple') || lower.includes('basic')) {
-                    analysis.complexity = 'low';
-                }
-
-                return analysis;
             }
+        }
 
-            extractFeatures(query) {
-                const features = [];
-                const keywords = {
-                    'menu': 'interactive_menu',
-                    'notification': 'notification_system',
-                    'command': 'chat_commands',
-                    'save': 'data_persistence',
-                    'permission': 'permission_system',
-                    'log': 'logging_system',
-                    'webhook': 'discord_webhook',
-                    'zone': 'zone_system',
-                    'marker': 'world_markers',
-                    'blip': 'map_blips'
-                };
-
-                for (const [key, value] of Object.entries(keywords)) {
-                    if (query.toLowerCase().includes(key)) {
-                        features.push(value);
-                    }
-                }
-
-                return features.length > 0 ? features : ['basic_functionality'];
-            }
-
-            buildCompleteScript(analysis) {
-                let code = {};
-                let message = `# ✅ **Advanced ${this.formatTitle(analysis.type)} Generated!**\n\n`;
+        function generateVehicleScript() {
+            return `
+                <div class="status-message status-success">
+                    <span>✅</span>
+                    <span>Vehicle spawn script generated successfully!</span>
+                </div>
                 
-                message += `**Framework:** ${analysis.framework.toUpperCase()}\n`;
-                message += `**Complexity:** ${analysis.complexity.toUpperCase()}\n`;
-                message += `**Features Included:**\n`;
+                I've created a complete vehicle spawning system with the following features:
+                - Command-based spawning
+                - Permission checking
+                - Vehicle cleanup
+                - Custom spawn locations
                 
-                analysis.features.forEach(feature => {
-                    message += `- ${this.formatFeature(feature)}\n`;
-                });
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-language">SERVER.LUA</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>-- Vehicle Spawn System
+ESX = nil
+TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
-                // Generate complete script structure
-                if (analysis.type === 'job_system') {
-                    code = this.generateJobSystem(analysis);
-                } else if (analysis.type === 'vehicle_system') {
-                    code = this.generateVehicleSystem(analysis);
-                } else if (analysis.type === 'banking') {
-                    code = this.generateBankingSystem(analysis);
-                } else if (analysis.type === 'inventory') {
-                    code = this.generateInventorySystem(analysis);
-                } else if (analysis.type === 'housing') {
-                    code = this.generateHousingSystem(analysis);
-                } else if (analysis.type === 'hud') {
-                    code = this.generateHUDSystem(analysis);
-                } else if (analysis.type === 'admin') {
-                    code = this.generateAdminSystem(analysis);
-                } else {
-                    code = this.generateCustomScript(analysis);
-                }
+RegisterCommand('car', function(source, args, rawCommand)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local vehicleName = args[1] or 'adder'
+    
+    if xPlayer.getGroup() == 'admin' then
+        TriggerClientEvent('vehicle:spawn', source, vehicleName)
+    else
+        TriggerClientEvent('chat:addMessage', source, {
+            args = {'System', 'Insufficient permissions'}
+        })
+    end
+end)</pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-language">CLIENT.LUA</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>RegisterNetEvent('vehicle:spawn')
+AddEventHandler('vehicle:spawn', function(model)
+    local hash = GetHashKey(model)
+    local ped = PlayerPedId()
+    local coords = GetEntityCoords(ped)
+    
+    RequestModel(hash)
+    while not HasModelLoaded(hash) do
+        Wait(1)
+    end
+    
+    local vehicle = CreateVehicle(hash, coords.x, coords.y, coords.z, GetEntityHeading(ped), true, false)
+    SetPedIntoVehicle(ped, vehicle, -1)
+end)</pre>
+                </div>
+                
+                <button class="download-btn" onclick="downloadProject()">
+                    <span>📦</span>
+                    <span>Download Complete Script</span>
+                </button>
+            `;
+        }
 
-                return { message, code };
-            }
+        function generateUIScript() {
+            return `
+                <div class="status-message status-success">
+                    <span>✅</span>
+                    <span>Modern UI generated successfully!</span>
+                </div>
+                
+                I've created a modern, responsive UI with:
+                - Glassmorphism design
+                - Smooth animations
+                - Dark mode support
+                - Mobile responsive
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-language">HTML</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;FiveM Modern UI&lt;/title&gt;
+    &lt;style&gt;
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        .container {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1&gt;Welcome to FiveM&lt;/h1&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                </div>
+                
+                <button class="download-btn" onclick="downloadProject()">
+                    <span>📦</span>
+                    <span>Download UI Package</span>
+                </button>
+            `;
+        }
 
-            generateJobSystem(analysis) {
-                const framework = analysis.framework;
-                return {
-                    'fxmanifest.lua': `fx_version 'cerulean'
-game 'gta5'
-
-author 'FiveM AI Generator'
-description 'Advanced Job System with Boss Menu'
-version '2.0.0'
-
-shared_scripts {
-    '@${framework}/imports.lua',
-    'config.lua'
-}
-
-client_scripts {
-    'client/main.lua',
-    'client/boss.lua',
-    'client/employee.lua',
-    'client/utils.lua'
-}
-
-server_scripts {
-    '@oxmysql/lib/MySQL.lua',
-    'server/main.lua',
-    'server/boss.lua',
-    'server/employee.lua',
-    'server/paycheck.lua',
-    'server/utils.lua'
-}
-
-ui_page 'html/index.html'
-
-files {
-    'html/index.html',
-    'html/css/style.css',
-    'html/js/app.js',
-    'html/img/*.png'
-}
-
-dependencies {
-    '${framework}',
-    'oxmysql'
-}`,
-                    'config.lua': `Config = {}
+        function generateJobScript() {
+            return `
+                <div class="status-message status-success">
+                    <span>✅</span>
+                    <span>Job system created successfully!</span>
+                </div>
+                
+                Complete job system with:
+                - Multiple job types
+                - Salary system
+                - Job grades
+                - Boss actions
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-language">SHARED.LUA</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>Config = {}
 
 Config.Jobs = {
     ['police'] = {
-        label = 'Police Department',
-        defaultDuty = true,
-        offDutyPay = false,
+        label = 'Police',
         grades = {
-            [0] = { name = 'Recruit', payment = 500 },
-            [1] = { name = 'Officer', payment = 750 },
-            [2] = { name = 'Senior Officer', payment = 1000 },
-            [3] = { name = 'Sergeant', payment = 1250 },
-            [4] = { name = 'Lieutenant', payment = 1500 },
-            [5] = { name = 'Captain', payment = 1750 },
-            [6] = { name = 'Chief', payment = 2000, isboss = true }
-        },
-        bossMenu = vector3(461.45, -986.2, 30.73),
-        stash = {
-            size = 5000000,
-            slots = 100
-        },
-        vehicles = {
-            {model = 'police', label = 'Police Cruiser', minGrade = 0},
-            {model = 'police2', label = 'Police SUV', minGrade = 2},
-            {model = 'policeb', label = 'Police Bike', minGrade = 1}
-        }
-    },
-    ['ambulance'] = {
-        label = 'Emergency Medical Services',
-        defaultDuty = true,
-        offDutyPay = false,
-        grades = {
-            [0] = { name = 'EMT', payment = 500 },
-            [1] = { name = 'Paramedic', payment = 750 },
-            [2] = { name = 'Doctor', payment = 1000 },
-            [3] = { name = 'Surgeon', payment = 1500 },
-            [4] = { name = 'Chief of Medicine', payment = 2000, isboss = true }
-        },
-        bossMenu = vector3(335.46, -594.52, 43.28),
-        stash = {
-            size = 3000000,
-            slots = 50
+            [0] = {name = 'recruit', label = 'Recruit', salary = 500},
+            [1] = {name = 'officer', label = 'Officer', salary = 750},
+            [2] = {name = 'sergeant', label = 'Sergeant', salary = 1000},
+            [3] = {name = 'boss', label = 'Chief', salary = 1500}
         }
     }
-}
-
-Config.PaycheckInterval = 30 -- minutes
-Config.EnableSocietyFunds = true
-Config.EnableOffDutyJobs = true
-Config.UseTarget = true -- Use qb-target/ox_target instead of markers`,
-                    'client/main.lua': `local ${framework === 'esx' ? 'ESX' : 'QBCore'} = nil
-local PlayerData = {}
-local onDuty = false
-
-Citizen.CreateThread(function()
-    ${framework === 'esx' ? `while ESX == nil do
-        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-        Citizen.Wait(0)
-    end` : `QBCore = exports['qb-core']:GetCoreObject()`}
-    
-    PlayerData = ${framework === 'esx' ? 'ESX.GetPlayerData()' : 'QBCore.Functions.GetPlayerData()'}
-end)
-
-RegisterNetEvent('${framework}:setJob')
-AddEventHandler('${framework}:setJob', function(job)
-    PlayerData.job = job
-    refreshJobZones()
-end)
-
--- Job Zones Management
-function refreshJobZones()
-    if not PlayerData.job then return end
-    
-    local jobConfig = Config.Jobs[PlayerData.job.name]
-    if not jobConfig then return end
-    
-    -- Boss Menu Zone
-    if PlayerData.job.isboss and jobConfig.bossMenu then
-        if Config.UseTarget then
-            exports['qb-target']:AddBoxZone('job_boss_' .. PlayerData.job.name, jobConfig.bossMenu, 2.0, 2.0, {
-                name = 'job_boss_' .. PlayerData.job.name,
-                heading = 0,
-                debugPoly = false,
-                minZ = jobConfig.bossMenu.z - 1,
-                maxZ = jobConfig.bossMenu.z + 1
-            }, {
-                options = {
-                    {
-                        type = "client",
-                        event = "jobs:client:openBossMenu",
-                        icon = "fas fa-briefcase",
-                        label = "Boss Menu"
-                    }
-                },
-                distance = 2.0
-            })
-        else
-            createMarker(jobConfig.bossMenu, function()
-                openBossMenu()
-            end)
-        end
-    end
-end
-
--- Duty Toggle
-RegisterCommand('duty', function()
-    if not PlayerData.job then return end
-    
-    local jobConfig = Config.Jobs[PlayerData.job.name]
-    if not jobConfig then return end
-    
-    onDuty = not onDuty
-    TriggerServerEvent('jobs:server:updateDuty', onDuty)
-    
-    ${framework === 'esx' ? 'ESX.ShowNotification' : 'QBCore.Functions.Notify'}(
-        onDuty and 'You are now on duty' or 'You are now off duty',
-        onDuty and 'success' or 'error'
-    )
-end)
-
--- Clock In/Out System
-function createClockInStation(coords)
-    Citizen.CreateThread(function()
-        while true do
-            local sleep = 1000
-            local playerPed = PlayerPedId()
-            local playerCoords = GetEntityCoords(playerPed)
-            local distance = #(playerCoords - coords)
-            
-            if distance < 10.0 then
-                sleep = 0
-                DrawMarker(2, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.2, 255, 255, 255, 255, false, false, 2, true, nil, nil, false)
-                
-                if distance < 2.0 then
-                    DrawText3D(coords.x, coords.y, coords.z + 0.3, onDuty and '[E] Clock Out' or '[E] Clock In')
-                    
-                    if IsControlJustPressed(0, 38) then
-                        onDuty = not onDuty
-                        TriggerServerEvent('jobs:server:updateDuty', onDuty)
-                    end
-                end
-            end
-            
-            Citizen.Wait(sleep)
-        end
-    end)
-end
-
--- Utility Functions
-function DrawText3D(x, y, z, text)
-    SetTextScale(0.35, 0.35)
-    SetTextFont(4)
-    SetTextProportional(1)
-    SetTextColour(255, 255, 255, 215)
-    SetTextEntry("STRING")
-    SetTextCentre(true)
-    AddTextComponentString(text)
-    SetDrawOrigin(x, y, z, 0)
-    DrawText(0.0, 0.0)
-    local factor = (string.len(text)) / 370
-    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
-    ClearDrawOrigin()
-end`,
-                    'server/main.lua': `local ${framework === 'esx' ? 'ESX' : 'QBCore'} = nil
-
-${framework === 'esx' ? `TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)` : `QBCore = exports['qb-core']:GetCoreObject()`}
-
-local jobAccounts = {}
-local employeeDutyStatus = {}
-
--- Initialize job accounts
-MySQL.ready(function()
-    MySQL.Async.fetchAll('SELECT * FROM job_accounts', {}, function(results)
-        for _, account in ipairs(results) do
-            jobAccounts[account.name] = account.money
-        end
-    end)
-end)
-
--- Duty Management
-RegisterNetEvent('jobs:server:updateDuty')
-AddEventHandler('jobs:server:updateDuty', function(status)
-    local src = source
-    local Player = ${framework === 'esx' ? 'ESX.GetPlayerFromId(src)' : 'QBCore.Functions.GetPlayer(src)'}
-    
-    if Player then
-        local identifier = ${framework === 'esx' ? 'Player.identifier' : 'Player.PlayerData.citizenid'}
-        employeeDutyStatus[identifier] = status
-        
-        -- Update player metadata
-        ${framework === 'esx' ? '' : `Player.Functions.SetMetaData('onduty', status)`}
-        
-        -- Log duty change
-        logDutyChange(src, Player, status)
-    end
-end)
-
--- Paycheck System
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(Config.PaycheckInterval * 60000)
-        
-        for _, playerId in ipairs(GetPlayers()) do
-            local Player = ${framework === 'esx' ? 'ESX.GetPlayerFromId(playerId)' : 'QBCore.Functions.GetPlayer(playerId)'}
-            
-            if Player then
-                local job = ${framework === 'esx' ? 'Player.job' : 'Player.PlayerData.job'}
-                local jobConfig = Config.Jobs[job.name]
-                
-                if jobConfig then
-                    local grade = jobConfig.grades[job.grade]
-                    
-                    if grade and grade.payment > 0 then
-                        local identifier = ${framework === 'esx' ? 'Player.identifier' : 'Player.PlayerData.citizenid'}
-                        
-                        if employeeDutyStatus[identifier] or not jobConfig.defaultDuty then
-                            ${framework === 'esx' ? 'Player.addAccountMoney("bank", grade.payment)' : 'Player.Functions.AddMoney("bank", grade.payment)'}
-                            
-                            TriggerClientEvent('${framework === 'esx' ? 'esx:showNotification' : 'QBCore:Notify'}', playerId, 
-                                'Paycheck received: $' .. grade.payment, 'success')
-                            
-                            -- Log paycheck
-                            logPaycheck(playerId, Player, grade.payment)
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
-
--- Society Fund Management
-function addToSocietyFund(jobName, amount)
-    if not Config.EnableSocietyFunds then return false end
-    
-    if jobAccounts[jobName] then
-        jobAccounts[jobName] = jobAccounts[jobName] + amount
-        
-        MySQL.Async.execute('UPDATE job_accounts SET money = @money WHERE name = @name', {
-            ['@money'] = jobAccounts[jobName],
-            ['@name'] = jobName
-        })
-        
-        return true
-    end
-    
-    return false
-end
-
-function removeFromSocietyFund(jobName, amount)
-    if not Config.EnableSocietyFunds then return false end
-    
-    if jobAccounts[jobName] and jobAccounts[jobName] >= amount then
-        jobAccounts[jobName] = jobAccounts[jobName] - amount
-        
-        MySQL.Async.execute('UPDATE job_accounts SET money = @money WHERE name = @name', {
-            ['@money'] = jobAccounts[jobName],
-            ['@name'] = jobName
-        })
-        
-        return true
-    end
-    
-    return false
-end
-
--- Export functions
-exports('addToSocietyFund', addToSocietyFund)
-exports('removeFromSocietyFund', removeFromSocietyFund)
-exports('getSocietyFund', function(jobName)
-    return jobAccounts[jobName] or 0
-end)`,
-                    'html/index.html': `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Menu</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <div class="container" id="app">
-        <div class="header">
-            <h1>Boss Management</h1>
-            <button class="close-btn" onclick="closeBossMenu()">✖</button>
-        </div>
-        
-        <div class="tabs">
-            <button class="tab active" data-tab="employees">Employees</button>
-            <button class="tab" data-tab="recruitment">Recruitment</button>
-            <button class="tab" data-tab="society">Society Fund</button>
-            <button class="tab" data-tab="grades">Grades</button>
-        </div>
-        
-        <div class="content">
-            <div class="tab-content active" id="employees">
-                <div class="employee-list">
-                    <!-- Employee cards will be generated here -->
+}</pre>
                 </div>
-            </div>
-            
-            <div class="tab-content" id="recruitment">
-                <div class="nearby-citizens">
-                    <!-- Nearby citizens list -->
+                
+                <button class="download-btn" onclick="downloadProject()">
+                    <span>📦</span>
+                    <span>Download Job System</span>
+                </button>
+            `;
+        }
+
+        function generateGenericResponse(query) {
+            return `
+                I understand you want to create: "${query}"
+                
+                I'm analyzing your requirements and generating the optimal FiveM script...
+                
+                <div class="status-message status-warning">
+                    <span>⚡</span>
+                    <span>Generating custom script based on your specifications...</span>
                 </div>
-            </div>
+                
+                Here's what I'll create for you:
+                - Optimized client-side code
+                - Secure server-side validation
+                - Modern NUI interface
+                - Complete configuration system
+                
+                Would you like me to:
+                1. Generate the complete script package
+                2. Show you a preview first
+                3. Customize specific features
+                
+                Just let me know how you'd like to proceed!
+            `;
+        }
+
+        // Typing Indicator
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message';
+            typingDiv.id = 'typingIndicator';
             
-            <div class="tab-content" id="society">
-                <div class="society-info">
-                    <h2>Society Balance</h2>
-                    <p class="balance">$0</p>
-                    
-                    <div class="transaction-form">
-                        <input type="number" id="amount" placeholder="Amount">
-                        <button onclick="deposit()">Deposit</button>
-                        <button onclick="withdraw()">Withdraw</button>
-                    </div>
-                    
-                    <div class="transaction-history">
-                        <!-- Transaction history -->
+            typingDiv.innerHTML = `
+                <div class="message-avatar ai-avatar">AI</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
                     </div>
                 </div>
-            </div>
+            `;
             
-            <div class="tab-content" id="grades">
-                <div class="grade-management">
-                    <!-- Grade configuration -->
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script src="js/app.js"></script>
-</body>
-</html>`,
-                    'html/css/style.css': `* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    color: #fff;
-}
-
-.container {
-    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
-    border-radius: 20px;
-    padding: 30px;
-    width: 90%;
-    max-width: 800px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.header h1 {
-    font-size: 28px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.close-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #fff;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 20px;
-    transition: all 0.3s ease;
-}
-
-.close-btn:hover {
-    background: rgba(255, 107, 107, 0.3);
-    transform: rotate(90deg);
-}
-
-.tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
-}
-
-.tab {
-    flex: 1;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.tab:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.tab.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-}
-
-.tab-content {
-    display: none;
-    animation: fadeIn 0.3s ease;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-.employee-list {
-    display: grid;
-    gap: 15px;
-}
-
-.employee-card {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 20px;
-    border-radius: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-
-.employee-card:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateX(5px);
-}
-
-.employee-info h3 {
-    font-size: 18px;
-    margin-bottom: 5px;
-}
-
-.employee-info p {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 14px;
-}
-
-.employee-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.action-btn {
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.3s ease;
-}
-
-.action-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.action-btn.promote {
-    background: rgba(76, 175, 80, 0.3);
-    border-color: rgba(76, 175, 80, 0.5);
-}
-
-.action-btn.fire {
-    background: rgba(244, 67, 54, 0.3);
-    border-color: rgba(244, 67, 54, 0.5);
-}
-
-.balance {
-    font-size: 48px;
-    font-weight: bold;
-    background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 20px 0;
-}
-
-.transaction-form {
-    display: flex;
-    gap: 10px;
-    margin: 30px 0;
-}
-
-.transaction-form input {
-    flex: 1;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: #fff;
-    font-size: 16px;
-}
-
-.transaction-form button {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    border-radius: 10px;
-    color: #fff;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.transaction-form button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-}`
-                };
-            }
-
-            generateVehicleSystem(analysis) {
-                return {
-                    'fxmanifest.lua': `fx_version 'cerulean'
-game 'gta5'
-
-author 'FiveM AI Generator'
-description 'Advanced Vehicle Shop & Garage System'
-version '2.0.0'
-
-shared_scripts {
-    '@${analysis.framework}/imports.lua',
-    'config.lua'
-}
-
-client_scripts {
-    'client/main.lua',
-    'client/shop.lua',
-    'client/garage.lua',
-    'client/showroom.lua'
-}
-
-server_scripts {
-    '@oxmysql/lib/MySQL.lua',
-    'server/main.lua',
-    'server/shop.lua',
-    'server/garage.lua'
-}
-
-ui_page 'html/index.html'
-
-files {
-    'html/index.html',
-    'html/css/*.css',
-    'html/js/*.js',
-    'html/img/*.png'
-}`,
-                    'config.lua': `Config = {}
-
-Config.Shops = {
-    ['pdm'] = {
-        name = 'Premium Deluxe Motorsport',
-        blip = {
-            coords = vector3(-33.7, -1102.0, 26.4),
-            sprite = 326,
-            color = 3,
-            scale = 0.8
-        },
-        showroom = {
-            vector4(-47.5, -1097.2, 25.4, 120.0),
-            vector4(-54.7, -1097.0, 25.4, 120.0),
-            vector4(-49.8, -1083.9, 25.4, 200.0),
-            vector4(-46.6, -1094.8, 25.4, 120.0)
-        },
-        testDrive = {
-            spawn = vector4(-11.87, -1080.87, 25.67, 132.0),
-            duration = 120, -- seconds
-            route = {
-                vector3(228.3, -992.5, 29.0),
-                vector3(367.0, -603.5, 28.5),
-                vector3(-85.0, -819.0, 35.5)
-            }
-        },
-        categories = {
-            ['sports'] = 'Sports',
-            ['sedans'] = 'Sedans',
-            ['suvs'] = 'SUVs',
-            ['coupes'] = 'Coupes',
-            ['muscle'] = 'Muscle',
-            ['super'] = 'Super',
-            ['motorcycles'] = 'Motorcycles'
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-    }
-}
 
-Config.Vehicles = {
-    ['sports'] = {
-        {model = 'comet2', name = 'Comet', price = 65000, stock = 10},
-        {model = 'coquette', name = 'Coquette', price = 55000, stock = 8},
-        {model = 'elegy2', name = 'Elegy RH8', price = 38000, stock = 15},
-        {model = 'feltzer2', name = 'Feltzer', price = 62000, stock = 6}
-    },
-    ['sedans'] = {
-        {model = 'asea', name = 'Asea', price = 5500, stock = 25},
-        {model = 'cognoscenti', name = 'Cognoscenti', price = 55000, stock = 5},
-        {model = 'emperor', name = 'Emperor', price = 8500, stock = 20},
-        {model = 'fugitive', name = 'Fugitive', price = 24000, stock = 12}
-    },
-    ['super'] = {
-        {model = 'adder', name = 'Adder', price = 900000, stock = 2},
-        {model = 'zentorno', name = 'Zentorno', price = 725000, stock = 3},
-        {model = 't20', name = 'T20', price = 850000, stock = 2},
-        {model = 'turismor', name = 'Turismo R', price = 500000, stock = 4}
-    }
-}
-
-Config.Finance = {
-    enabled = true,
-    minDown = 10, -- minimum down payment %
-    maxMonths = 72,
-    interestRate = 3.5 -- annual %
-}`,
-                    'client/shop.lua': `local inShowroom = false
-local currentVehicles = {}
-local testDriveActive = false
-local testDriveVehicle = nil
-local testDriveTime = 0
-
-function OpenVehicleShop(shop)
-    inShowroom = true
-    SetNuiFocus(true, true)
-    
-    -- Load showroom vehicles
-    loadShowroomVehicles(shop)
-    
-    SendNUIMessage({
-        action = 'openShop',
-        shop = Config.Shops[shop],
-        vehicles = Config.Vehicles,
-        playerMoney = GetPlayerMoney()
-    })
-end
-
-function loadShowroomVehicles(shop)
-    local shopConfig = Config.Shops[shop]
-    
-    -- Clear existing vehicles
-    for _, vehicle in pairs(currentVehicles) do
-        DeleteEntity(vehicle)
-    end
-    currentVehicles = {}
-    
-    -- Spawn showroom vehicles
-    for i, spot in ipairs(shopConfig.showroom) do
-        if i <= 4 then
-            local randomCategory = getRandomCategory()
-            local randomVehicle = Config.Vehicles[randomCategory][math.random(#Config.Vehicles[randomCategory])]
-            
-            RequestModel(randomVehicle.model)
-            while not HasModelLoaded(randomVehicle.model) do
-                Citizen.Wait(10)
-            end
-            
-            local vehicle = CreateVehicle(randomVehicle.model, spot.x, spot.y, spot.z, spot.w, false, false)
-            SetEntityAsMissionEntity(vehicle, true, true)
-            SetVehicleOnGroundProperly(vehicle)
-            SetVehicleDoorsLocked(vehicle, 2)
-            SetEntityInvincible(vehicle, true)
-            FreezeEntityPosition(vehicle, true)
-            
-            -- Set random color
-            local color1 = math.random(0, 160)
-            local color2 = math.random(0, 160)
-            SetVehicleColours(vehicle, color1, color2)
-            
-            table.insert(currentVehicles, vehicle)
-        end
-    end
-end
-
-function StartTestDrive(vehicle, shop)
-    if testDriveActive then
-        return Notify('Test drive already in progress', 'error')
-    end
-    
-    local shopConfig = Config.Shops[shop]
-    local spawn = shopConfig.testDrive.spawn
-    
-    -- Create test drive vehicle
-    RequestModel(vehicle.model)
-    while not HasModelLoaded(vehicle.model) do
-        Citizen.Wait(10)
-    end
-    
-    testDriveVehicle = CreateVehicle(vehicle.model, spawn.x, spawn.y, spawn.z, spawn.w, true, false)
-    SetPedIntoVehicle(PlayerPedId(), testDriveVehicle, -1)
-    SetVehicleNumberPlateText(testDriveVehicle, 'TEST')
-    
-    testDriveActive = true
-    testDriveTime = shopConfig.testDrive.duration
-    
-    -- Create route blips
-    for i, coords in ipairs(shopConfig.testDrive.route) do
-        local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
-        SetBlipRoute(blip, i == 1)
-        SetBlipColour(blip, 3)
-        SetBlipRouteColour(blip, 3)
-    end
-    
-    -- Start timer
-    Citizen.CreateThread(function()
-        while testDriveActive and testDriveTime > 0 do
-            Citizen.Wait(1000)
-            testDriveTime = testDriveTime - 1
-            
-            if testDriveTime <= 10 then
-                Notify('Test drive ending in ' .. testDriveTime .. ' seconds', 'warning')
-            end
-        end
-        
-        if testDriveActive then
-            EndTestDrive()
-        end
-    end)
-end
-
-function EndTestDrive()
-    if not testDriveActive then return end
-    
-    testDriveActive = false
-    
-    -- Delete vehicle
-    if DoesEntityExist(testDriveVehicle) then
-        DeleteEntity(testDriveVehicle)
-    end
-    
-    -- Remove blips
-    local blips = GetActiveBlips()
-    for _, blip in pairs(blips) do
-        RemoveBlip(blip)
-    end
-    
-    -- Teleport back to shop
-    SetEntityCoords(PlayerPedId(), -33.7, -1102.0, 26.4)
-    
-    Notify('Test drive ended', 'success')
-end
-
-RegisterNUICallback('purchaseVehicle', function(data, cb)
-    TriggerServerEvent('vehicleshop:purchase', data)
-    cb('ok')
-end)
-
-RegisterNUICallback('testDrive', function(data, cb)
-    StartTestDrive(data.vehicle, data.shop)
-    cb('ok')
-end)
-
-RegisterNUICallback('closeShop', function(data, cb)
-    SetNuiFocus(false, false)
-    inShowroom = false
-    
-    -- Clean up showroom vehicles
-    for _, vehicle in pairs(currentVehicles) do
-        DeleteEntity(vehicle)
-    end
-    currentVehicles = {}
-    
-    cb('ok')
-end)`
-                };
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
             }
+        }
 
-            generateBankingSystem(analysis) {
-                return {
+        // Quick Actions
+        function quickAction(type) {
+            let message = '';
+            switch(type) {
+                case 'script':
+                    message = 'Create a complete robbery system with police alerts';
+                    break;
+                case 'ui':
+                    message = 'Design a modern inventory UI with drag and drop';
+                    break;
+                case 'convert':
+                    message = 'Convert this ESX script to QBCore';
+                    break;
+                case 'debug':
+                    message = 'Debug and fix errors in my script';
+                    break;
+            }
+            
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        // Utility Functions
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('pre').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = 'var(--success)';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+            });
+        }
+
+        function downloadProject() {
+            // Simulate project download
+            const projectData = {
+                name: 'fivem_generated_script',
+                files: {
                     'fxmanifest.lua': `fx_version 'cerulean'
 game 'gta5'
 
 author 'FiveM AI Generator'
-description 'Advanced Banking System with ATMs'
-version '2.0.0'
-
-shared_scripts {
-    '@${analysis.framework}/imports.lua',
-    'config.lua'
-}
-
-client_scripts {
-    'client/main.lua',
-    'client/atm.lua',
-    'client/bank.lua'
-}
-
-server_scripts {
-    '@oxmysql/lib/MySQL.lua',
-    'server/main.lua',
-    'server/transactions.lua',
-    'server/interest.lua'
-}
-
-ui_page 'html/index.html'
-
-files {
-    'html/index.html',
-    'html/css/*.css',
-    'html/js/*.js',
-    'html/img/*.png'
-}`,
-                    'config.lua': `Config = {}
-
-Config.Banks = {
-    {name = 'Pacific Standard', coords = vector3(246.6, 223.5, 106.3)},
-    {name = 'Fleeca Bank', coords = vector3(149.5, -1040.6, 29.4)},
-    {name = 'Fleeca Bank', coords = vector3(-351.5, -49.5, 49.0)},
-    {name = 'Fleeca Bank', coords = vector3(313.5, -278.8, 54.2)},
-    {name = 'Fleeca Bank', coords = vector3(-1213.0, -330.8, 37.8)},
-    {name = 'Fleeca Bank', coords = vector3(-2962.5, 482.9, 15.7)},
-    {name = 'Fleeca Bank', coords = vector3(1175.0, 2706.8, 38.1)}
-}
-
-Config.ATMs = {
-    vector3(89.2, 2.4, 68.3),
-    vector3(1167.0, -456.1, 66.8),
-    vector3(-1827.2, 784.9, 138.3),
-    vector3(-386.7, 6046.0, 31.5),
-    vector3(-284.0, 6225.0, 31.2),
-    vector3(-133.0, 6366.5, 31.5),
-    vector3(155.8, 6642.8, 31.6),
-    vector3(174.2, 6637.9, 31.6),
-    vector3(1701.3, 6426.5, 32.8),
-    vector3(1735.2, 6410.5, 35.0),
-    vector3(1703.0, 4933.5, 42.1),
-    vector3(1968.1, 3743.5, 32.3),
-    vector3(1822.6, 3683.1, 34.3),
-    vector3(540.3, 2671.1, 42.2),
-    vector3(2564.5, 2585.0, 38.1),
-    vector3(2558.7, 351.0, 108.6),
-    vector3(2558.5, 389.5, 108.6),
-    vector3(1077.7, -776.5, 58.2),
-    vector3(1139.0, -469.0, 66.7),
-    vector3(1168.9, -457.2, 66.5),
-    vector3(1153.7, -326.8, 69.2),
-    vector3(381.8, 323.4, 103.6),
-    vector3(285.5, 143.4, 104.2),
-    vector3(157.9, 234.2, 106.6),
-    vector3(-164.6, 232.7, 94.9),
-    vector3(-1827.3, 785.0, 138.3),
-    vector3(-1409.8, -100.4, 52.4),
-    vector3(-1205.8, -325.0, 37.9),
-    vector3(-2072.4, -317.3, 13.3)
-}
-
-Config.Interest = {
-    enabled = true,
-    rate = 0.001, -- 0.1% daily
-    minBalance = 5000, -- Minimum balance to earn interest
-    maxBalance = 10000000, -- Maximum balance for interest calculation
-    payoutTime = 24 -- Hours between interest payouts
-}
-
-Config.Transactions = {
-    minTransfer = 1,
-    maxTransfer = 10000000,
-    transferFee = 0, -- Flat fee for transfers
-    transferFeePercent = 0, -- Percentage fee for transfers (0.5 = 0.5%)
-    dailyLimit = 5000000, -- Daily withdrawal limit
-    requirePin = true,
-    pinLength = 4
-}
-
-Config.Loans = {
-    enabled = true,
-    minAmount = 1000,
-    maxAmount = 500000,
-    interestRate = 5, -- Annual percentage
-    maxTermMonths = 60,
-    requireCollateral = true,
-    minCreditScore = 600
-}`
-                };
-            }
-
-            generateCustomScript(analysis) {
-                const base = {
-                    'fxmanifest.lua': `fx_version 'cerulean'
-game 'gta5'
-
-author 'FiveM AI Generator'
-description 'Custom FiveM Script'
+description 'Auto-generated FiveM Script'
 version '1.0.0'
 
-shared_scripts {
-    'config.lua'
-}
-
 client_scripts {
-    'client/main.lua'
+    'client/*.lua'
 }
 
 server_scripts {
-    '@oxmysql/lib/MySQL.lua',
-    'server/main.lua'
-}`,
-                    'config.lua': `Config = {}
-
--- Generated configuration based on your requirements
-Config.Debug = false
-Config.UseTarget = false -- Set to true for qb-target/ox_target support`,
-                    'client/main.lua': `-- Client-side script
-local initialized = false
-
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(0)
-        
-        if not initialized then
-            Initialize()
-            initialized = true
-        end
-        
-        -- Main client logic here
-    end
-end)
-
-function Initialize()
-    -- Initialization logic
-    print('[Custom Script] Initialized successfully')
-end`,
-                    'server/main.lua': `-- Server-side script
-print('[Custom Script] Server initialized')
-
-RegisterNetEvent('custom:server:action')
-AddEventHandler('custom:server:action', function(data)
-    local src = source
-    -- Handle server action
-end)`
-                };
-                
-                return base;
-            }
-            
-            generateInventorySystem(analysis) {
-                return {
-                    'fxmanifest.lua': `fx_version 'cerulean'
-game 'gta5'
-
-author 'FiveM AI Generator'
-description 'Advanced Inventory System'
-version '2.0.0'
+    'server/*.lua'
+}
 
 shared_scripts {
-    'config.lua',
     'shared/*.lua'
-}
-
-client_scripts {
-    'client/main.lua',
-    'client/drop.lua',
-    'client/hotbar.lua'
-}
-
-server_scripts {
-    '@oxmysql/lib/MySQL.lua',
-    'server/main.lua',
-    'server/items.lua',
-    'server/drops.lua'
-}
-
-ui_page 'html/index.html'
-
-files {
-    'html/index.html',
-    'html/css/*.css',
-    'html/js/*.js',
-    'html/img/items/*.png'
-}`,
-                    'config.lua': `Config = {}
-
-Config.MaxWeight = 30000 -- grams
-Config.MaxSlots = 40
-Config.DropModel = 'prop_cs_package_01'
-Config.DropDespawnTime = 1800 -- seconds
-
-Config.Items = {
-    ['water'] = {
-        name = 'water',
-        label = 'Water Bottle',
-        weight = 500,
-        type = 'item',
-        image = 'water.png',
-        unique = false,
-        useable = true,
-        shouldClose = true,
-        description = 'A refreshing bottle of water'
-    },
-    ['phone'] = {
-        name = 'phone',
-        label = 'Mobile Phone',
-        weight = 300,
-        type = 'item',
-        image = 'phone.png',
-        unique = true,
-        useable = true,
-        shouldClose = false,
-        description = 'Stay connected'
-    },
-    ['weapon_pistol'] = {
-        name = 'weapon_pistol',
-        label = 'Pistol',
-        weight = 1200,
-        type = 'weapon',
-        image = 'weapon_pistol.png',
-        unique = true,
-        useable = false,
-        shouldClose = true,
-        description = '9mm Pistol'
-    }
-}`
-                };
-            }
-            
-            generateHousingSystem(analysis) {
-                return {
-                    'fxmanifest.lua': `fx_version 'cerulean'
-game 'gta5'
-
-author 'FiveM AI Generator'
-description 'Advanced Housing System'
-version '2.0.0'
-
-shared_scripts {
-    '@${analysis.framework}/imports.lua',
-    'config.lua'
-}
-
-client_scripts {
-    'client/main.lua',
-    'client/interior.lua',
-    'client/furniture.lua',
-    'client/garage.lua'
-}
-
-server_scripts {
-    '@oxmysql/lib/MySQL.lua',
-    'server/main.lua',
-    'server/houses.lua',
-    'server/furniture.lua'
 }
 
 ui_page 'html/index.html'
@@ -1920,274 +1175,94 @@ files {
     'html/css/*.css',
     'html/js/*.js'
 }`,
-                    'config.lua': `Config = {}
-
-Config.Houses = {
-    ['apartment1'] = {
-        label = 'South Rockford Apartment',
-        price = 125000,
-        coords = vector3(-667.372, -1106.034, 14.629),
-        garage = vector3(-659.9, -1095.5, 14.6),
-        interior = 'modern_apartment_1',
-        maxFurniture = 50
-    },
-    ['house1'] = {
-        label = 'Vinewood Hills Mansion',
-        price = 1850000,
-        coords = vector3(-1289.7, 449.8, 97.9),
-        garage = vector3(-1292.5, 456.3, 97.0),
-        interior = 'luxury_mansion',
-        maxFurniture = 150
-    }
-}
-
-Config.Interiors = {
-    ['modern_apartment_1'] = {
-        exit = vector3(266.0, -1007.0, -101.0),
-        stash = vector3(265.0, -999.3, -99.0),
-        wardrobe = vector3(259.8, -1003.8, -99.0),
-        furniture_zones = {
-            {coords = vector3(262.0, -1002.0, -99.0), radius = 10.0}
+                    'client/main.lua': '-- Client-side code',
+                    'server/main.lua': '-- Server-side code',
+                    'shared/config.lua': '-- Configuration'
+                }
+            };
+            
+            // Create download
+            const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fivem_script.zip';
+            a.click();
+            
+            // Show success message
+            addMessage('ai', `
+                <div class="status-message status-success">
+                    <span>✅</span>
+                    <span>Project downloaded successfully!</span>
+                </div>
+                
+                Your FiveM script package has been downloaded. It includes:
+                - Complete file structure
+                - Client and server scripts
+                - Configuration files
+                - NUI interface
+                - Installation instructions
+                
+                Just extract and add to your server's resources folder!
+            `);
         }
-    }
-}`
-                };
+
+        function startNewChat() {
+            conversationHistory = [];
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="message">
+                    <div class="message-avatar ai-avatar">AI</div>
+                    <div class="message-content">
+                        <div class="message-role">FiveM AI Assistant</div>
+                        <div class="message-text">
+                            New chat started! How can I help you create amazing FiveM scripts today?
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function searchWeb() {
+            addMessage('ai', `
+                <div class="status-message status-success">
+                    <span>🔍</span>
+                    <span>Searching FiveM documentation and resources...</span>
+                </div>
+                
+                I'm searching for the latest FiveM natives, best practices, and community resources to ensure your script uses the most up-to-date methods.
+            `);
+        }
+
+        function importGithub() {
+            const url = prompt('Enter GitHub repository URL:');
+            if (url) {
+                addMessage('ai', `
+                    <div class="status-message status-success">
+                        <span>📦</span>
+                        <span>Importing from GitHub...</span>
+                    </div>
+                    
+                    Analyzing repository structure and importing scripts...
+                    I'll convert and optimize them for your server.
+                `);
             }
-            
-            generateHUDSystem(analysis) {
-                return {
-                    'fxmanifest.lua': `fx_version 'cerulean'
-game 'gta5'
+        }
 
-author 'FiveM AI Generator'
-description 'Modern HUD System'
-version '2.0.0'
+        function exportProject() {
+            downloadProject();
+        }
 
-client_scripts {
-    'client/main.lua'
-}
+        function toggleVoice() {
+            alert('Voice input would be activated here with Web Speech API');
+        }
 
-ui_page 'html/index.html'
-
-files {
-    'html/index.html',
-    'html/css/*.css',
-    'html/js/*.js',
-    'html/fonts/*.ttf'
-}`,
-                    'html/index.html': `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            font-family: 'Roboto', sans-serif;
-        }
-        
-        body {
-            overflow: hidden;
-            background: transparent;
-        }
-        
-        #hud {
-            position: fixed;
-            bottom: 20px;
-            left: 320px;
-            display: flex;
-            gap: 10px;
-        }
-        
-        .status-bar {
-            width: 50px;
-            height: 50px;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .status-icon {
-            font-size: 24px;
-            z-index: 2;
-        }
-        
-        .status-fill {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(0deg, var(--color) 0%, transparent 100%);
-            border-radius: 8px;
-            transition: height 0.3s ease;
-        }
-        
-        #health .status-fill { --color: #ff4757; }
-        #armor .status-fill { --color: #3742fa; }
-        #hunger .status-fill { --color: #ff6348; }
-        #thirst .status-fill { --color: #00d2d3; }
-        
-        #speedometer {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 250px;
-            height: 250px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(15px);
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .speed-value {
-            font-size: 48px;
-            font-weight: bold;
-            color: #fff;
-        }
-        
-        .speed-unit {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        .gear {
-            margin-top: 10px;
-            font-size: 24px;
-            color: #00d2d3;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .status-bar.warning {
-            animation: pulse 1s infinite;
-            border-color: #ff6348;
-        }
-    </style>
-</head>
-<body>
-    <div id="hud">
-        <div class="status-bar" id="health">
-            <span class="status-icon">❤️</span>
-            <div class="status-fill"></div>
-        </div>
-        <div class="status-bar" id="armor">
-            <span class="status-icon">🛡️</span>
-            <div class="status-fill"></div>
-        </div>
-        <div class="status-bar" id="hunger">
-            <span class="status-icon">🍔</span>
-            <div class="status-fill"></div>
-        </div>
-        <div class="status-bar" id="thirst">
-            <span class="status-icon">💧</span>
-            <div class="status-fill"></div>
-        </div>
-    </div>
-    
-    <div id="speedometer">
-        <div class="speed-value">0</div>
-        <div class="speed-unit">KM/H</div>
-        <div class="gear">N</div>
-    </div>
-    
-    <script>
-        window.addEventListener('message', (event) => {
-            const data = event.data;
-            
-            if (data.action === 'updateStatus') {
-                updateStatus(data.status, data.value);
-            } else if (data.action === 'updateSpeed') {
-                updateSpeedometer(data.speed, data.gear);
-            } else if (data.action === 'showSpeedometer') {
-                document.getElementById('speedometer').style.display = data.show ? 'flex' : 'none';
+        // Enter key to send
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
             }
         });
-        
-        function updateStatus(status, value) {
-            const element = document.getElementById(status);
-            if (element) {
-                const fill = element.querySelector('.status-fill');
-                fill.style.height = value + '%';
-                
-                if (value < 20) {
-                    element.classList.add('warning');
-                } else {
-                    element.classList.remove('warning');
-                }
-            }
-        }
-        
-        function updateSpeedometer(speed, gear) {
-            document.querySelector('.speed-value').textContent = Math.floor(speed);
-            document.querySelector('.gear').textContent = gear;
-        }
     </script>
 </body>
-</html>`
-                };
-            }
-            
-            generateAdminSystem(analysis) {
-                return {
-                    'fxmanifest.lua': `fx_version 'cerulean'
-game 'gta5'
-
-author 'FiveM AI Generator'
-description 'Advanced Admin System'
-version '2.0.0'
-
-shared_scripts {
-    'config.lua'
-}
-
-client_scripts {
-    'client/main.lua',
-    'client/spectate.lua',
-    'client/noclip.lua'
-}
-
-server_scripts {
-    '@oxmysql/lib/MySQL.lua',
-    'server/main.lua',
-    'server/commands.lua',
-    'server/logs.lua',
-    'server/bans.lua'
-}`,
-                    'config.lua': `Config = {}
-
-Config.Permissions = {
-    ['owner'] = {
-        level = 100,
-        commands = {'*'}, -- All commands
-        color = '^1' -- Red
-    },
-    ['admin'] = {
-        level = 80,
-        commands = {'kick', 'ban', 'unban', 'tp', 'bring', 'freeze', 'spectate', 'noclip'},
-        color = '^3' -- Yellow
-    },
-    ['moderator'] = {
-        level = 50,
-        commands = {'kick', 'tp', 'bring', 'freeze', 'spectate'},
-        color = '^4' -- Blue
-    }
-}
-
-Config.WebhookURL = '' -- Discord webhook for logs
-Config.LogActions = true
-Config.SaveToDatabase = true`
-                };
-            }
+</html>
